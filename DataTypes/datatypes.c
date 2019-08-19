@@ -1,3 +1,8 @@
+//
+// Created by Salomón Charabati on 2019-08-12.
+//
+
+
 #include "datatypes.h"
 /*void printPerson(struct person anyone) // when not using typedef, these is the definition of the parameters
 {

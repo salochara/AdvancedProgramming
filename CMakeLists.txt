@@ -9,3 +9,5 @@ add_executable(AdvancedProgramming
     DataTypes/datatypes.c
     DataTypes/datatypes.h
     DataTypes/main.c)
+
+add_executable(basics basics.c)
