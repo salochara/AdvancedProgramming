@@ -25,8 +25,7 @@ fileHandling * checkForProgramInput(int argc, char * argv[])
 
     if(argc != 7){
         printf("File not run with needed commands\n");
-        files->validInput = FALSE;
-        return files;
+        files->validInput = FALSE; return files;
     }else
         files->validInput= TRUE;
     //char fileOne[MAX_FILE_NAME_SIZE], fileTwo[MAX_FILE_NAME_SIZE], resultFile[MAX_FILE_NAME_SIZE];
@@ -56,7 +55,8 @@ fileHandling * checkForProgramInput(int argc, char * argv[])
                 break;
             case '?':
                 printf("Unknown option %c \n", option);
-                return FALSE;
+                files->validInput = FALSE;
+                return files;
         }
     }
     return files;
