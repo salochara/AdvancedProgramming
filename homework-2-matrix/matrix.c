@@ -14,18 +14,21 @@ typedef struct {
     char fileOne[MAX_FILE_NAME_SIZE];
     char fileTwo[MAX_FILE_NAME_SIZE];
     char resultFile[MAX_FILE_NAME_SIZE];
+    int validInput;
 } fileHandling;
 
 fileHandling * checkForProgramInput(int argc, char * argv[])
 {
-    if(argc != 7){
-        printf("File not run with needed commands\n");
-        return FALSE;
-    }
-
-    fileHandling * files;
+    fileHandling * files = NULL;
     files = malloc(1 * sizeof(fileHandling));
     int option;
+
+    if(argc != 7){
+        printf("File not run with needed commands\n");
+        files->validInput = FALSE;
+        return files;
+    }else
+        files->validInput= TRUE;
     //char fileOne[MAX_FILE_NAME_SIZE], fileTwo[MAX_FILE_NAME_SIZE], resultFile[MAX_FILE_NAME_SIZE];
 
 
@@ -65,15 +68,13 @@ int main(int argc, char * argv[])
     fileHandling * files = NULL;
     files = checkForProgramInput(argc,argv);
 
-
-    return 0;
-    /*if(checkForProgramInput(argc, argv))
+    if(files->validInput)
     {
         files = checkForProgramInput(argc,argv);
         printf("hey\n");
-    }*/
+    }
 
-
+    return 0;
 }
 
 
