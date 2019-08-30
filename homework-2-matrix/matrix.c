@@ -105,10 +105,10 @@ matrix * allocateMemory(fileHandling * files)
     matrix = malloc(sizeof(matrix));
     float ** localStackPointers = NULL;
 
-    localStackPointers = (void**)malloc(files->resultingMatrixRows * sizeof(float*));
+    localStackPointers = (float**)malloc(files->resultingMatrixRows * sizeof(float*));
 
     for (int i = 0; i < files->resultingMatrixRows; ++i) {
-        localStackPointers[i] = (void*)calloc(files->resultingMatrixColumns, sizeof(float));
+        localStackPointers[i] = calloc(files->resultingMatrixColumns, sizeof(float));
     }
     matrix->stackPointers = localStackPointers;
 
@@ -128,7 +128,7 @@ int main(int argc, char * argv[])
             matrix = allocateMemory(files);
             for (int j = 0; j < files->resultingMatrixRows; ++j) {
                 for (int i = 0; i < files->resultingMatrixColumns; ++i) {
-                    printf("%f \t",matrix->stackPointers);
+                    printf("%f \t",**(matrix->stackPointers));
                 }
                 printf("\n");
             }
@@ -140,11 +140,14 @@ int main(int argc, char * argv[])
         }
     }
 
-    printf("%f",matrix->stackPointers);
+    matrix->stackPointers[0][1] = 1;
 
-
-
-
+    for (int k = 0; k < files->resultingMatrixRows; ++k) {
+        for (int i = 0; i < files->resultingMatrixColumns; ++i) {
+            printf("matrix at[%d][%d][%f]\n",k,i,matrix->stackPointers[k][i]);
+        }
+        //printf("\n");
+    }
 
     return 0;
 }
