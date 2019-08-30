@@ -1,6 +1,6 @@
 //
 // Created by Salomón Charabati on 2019-08-27.
-//
+// Advanced Programming in C
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
@@ -15,7 +15,14 @@ typedef struct {
     char fileTwo[MAX_FILE_NAME_SIZE];
     char resultFile[MAX_FILE_NAME_SIZE];
     int validInput;
+    int resultingMatrixColumns;
+    int resultingMatrixRows;
 } fileHandling;
+
+typedef struct {
+    float ** stackPointers;
+    float * array;
+} matrix ;
 
 fileHandling * checkForProgramInput(int argc, char * argv[])
 {
@@ -64,35 +71,78 @@ int matrixCanMultiply(fileHandling * files)
 {
     FILE * fileOnePtr = NULL;
     FILE * fileTwoPtr = NULL;
+    int columnsFileOne, rowsFileOne, columnsFileTwo, rowsFileTwo;
 
-    char fileOne[MAX_FILE_NAME_SIZE];
+    char fileOne[MAX_FILE_NAME_SIZE], fileTwo[MAX_FILE_NAME_SIZE];
     strncpy(fileOne,files->fileOne,MAX_FILE_NAME_SIZE);
+    strncpy(fileTwo,files->fileTwo, MAX_FILE_NAME_SIZE);
 
     fileOnePtr = fopen(fileOne,"r");
-    if(fileOnePtr){
-        int rows,columns;
-        fscanf(fileOnePtr,"%d %d", &rows, &columns);
-        printf("rows %d: \t columns: %d ",rows, columns);
+    fileTwoPtr = fopen(fileTwo, "r");
 
+    if(fileOnePtr && fileTwoPtr){
+        fscanf(fileOnePtr,"%d %d", &rowsFileOne, &columnsFileOne); // %*d is uses for not storing that value read anywhere.
+        fscanf(fileTwoPtr, "%d %d", &rowsFileTwo, &columnsFileTwo);
+        printf("columns fileOne: %d rowsfileTwo: %d \n",columnsFileOne,rowsFileTwo);
+    }else {
+        printf("File error\n");
+        return FALSE;
+    }
 
+    if (columnsFileOne == rowsFileTwo){
+        files->resultingMatrixColumns = columnsFileTwo;
+        files->resultingMatrixRows = rowsFileOne;
+        return TRUE;
     }else
-        printf("File error\n"); return FALSE;
-
-
+        return FALSE;
 }
 
 
+
+matrix * allocateMemory(fileHandling * files)
+{
+    matrix* matrix = NULL;
+    matrix = malloc(sizeof(matrix));
+    float ** localStackPointers = NULL;
+
+    localStackPointers = (void**)malloc(files->resultingMatrixRows * sizeof(float*));
+
+    for (int i = 0; i < files->resultingMatrixRows; ++i) {
+        localStackPointers[i] = (void*)calloc(files->resultingMatrixColumns, sizeof(float));
+    }
+    matrix->stackPointers = localStackPointers;
+
+    return matrix;
+}
 
 
 int main(int argc, char * argv[])
 {
     fileHandling * files = NULL;
+    matrix * matrix = NULL;
     files = checkForProgramInput(argc,argv);
-    if(files->validInput){
-        printf("hey\n");
-        matrixCanMultiply(files);
-
+    if(files->validInput) {
+        if (matrixCanMultiply(files)) {
+            printf("Yes they can multiply!\n");
+            // Do the multiplication. Meaning
+            matrix = allocateMemory(files);
+            for (int j = 0; j < files->resultingMatrixRows; ++j) {
+                for (int i = 0; i < files->resultingMatrixColumns; ++i) {
+                    printf("%f \t",matrix->stackPointers);
+                }
+                printf("\n");
+            }
+            // Get the memory allocation for the result matrix
+            // Do the actual multiplication
+            // Write the result in an output .txt
+        } else {
+            printf("No multiplication can be done!\n");
+        }
     }
+
+    printf("%f",matrix->stackPointers);
+
+
 
 
 
