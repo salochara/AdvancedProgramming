@@ -19,10 +19,13 @@ typedef struct {
     int resultingMatrixRows;
 } fileHandling;
 
-typedef struct {
+typedef struct matrix{
     float ** stackPointers;
-    float * array;
-} matrix ;
+    int numberOfRows;
+    int numberOfColumns;
+} matrix_t;
+
+
 
 fileHandling * checkForProgramInput(int argc, char * argv[])
 {
@@ -99,9 +102,9 @@ int matrixCanMultiply(fileHandling * files)
 
 
 
-matrix * allocateMemory(fileHandling * files)
+matrix_t * allocateMemory(fileHandling * files)
 {
-    matrix* matrix = NULL;
+    matrix_t* matrix = NULL;
     matrix = malloc(sizeof(matrix));
     float ** localStackPointers = NULL;
 
@@ -115,23 +118,29 @@ matrix * allocateMemory(fileHandling * files)
     return matrix;
 }
 
+void initializeMatrix(fileHandling* files)
+{
+
+}
+
 
 int main(int argc, char * argv[])
 {
     fileHandling * files = NULL;
-    matrix * matrix = NULL;
+    matrix_t * matrix = NULL;
     files = checkForProgramInput(argc,argv);
     if(files->validInput) {
         if (matrixCanMultiply(files)) {
             printf("Yes they can multiply!\n");
             // Do the multiplication. Meaning
             matrix = allocateMemory(files);
-            for (int j = 0; j < files->resultingMatrixRows; ++j) {
+            /*for (int j = 0; j < files->resultingMatrixRows; ++j) {
                 for (int i = 0; i < files->resultingMatrixColumns; ++i) {
                     printf("%f \t",**(matrix->stackPointers));
                 }
                 printf("\n");
-            }
+            }*/
+
             // Get the memory allocation for the result matrix
             // Do the actual multiplication
             // Write the result in an output .txt
@@ -144,10 +153,32 @@ int main(int argc, char * argv[])
 
     for (int k = 0; k < files->resultingMatrixRows; ++k) {
         for (int i = 0; i < files->resultingMatrixColumns; ++i) {
-            printf("matrix at[%d][%d][%f]\n",k,i,matrix->stackPointers[k][i]);
+            printf("at:[%d][%d][%f]",k,i,matrix->stackPointers[k][i]);
         }
-        //printf("\n");
+        printf("\n");
     }
+
+    // Get Matrix A from txt file
+   matrix_t matrixA;
+   initializeMatrix(files);
+
+
+
+
+
+    /* int resultMatrix[10][10];
+    printf("multiply of the matrix=\n");
+    for(int i=0;i< files->resultingMatrixRows ;i++)
+    {
+        for(int j=0; j < files->resultingMatrixColumns; j++)
+        {
+            resultMatrix[i][j]=0;
+            for(int k=0; k < files->resultingMatrixColumns; k++)
+            {
+                resultMatrix[i][j]+=[i][k]*b[k][j];
+            }
+        }
+    */
 
     return 0;
 }
