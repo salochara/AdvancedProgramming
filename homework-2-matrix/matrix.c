@@ -23,6 +23,8 @@ typedef struct matrix{
     float ** stackPointers;
     int numberOfRows;
     int numberOfColumns;
+    float *matrix;
+    float ** mat;
 } matrix_t;
 
 
@@ -118,68 +120,113 @@ matrix_t * allocateMemory(fileHandling * files)
     return matrix;
 }
 
-void initializeMatrix(fileHandling* files)
+matrix_t initializeMatrix(fileHandling* files, int fileNumber)
 {
+    matrix_t matrix;
+    FILE * fpointer = NULL;
+    char nameOfFile[MAX_FILE_NAME_SIZE];
+    (fileNumber == 1) ?  strncpy(nameOfFile, files->fileOne,MAX_FILE_NAME_SIZE) : strncpy(nameOfFile,files->fileTwo,MAX_FILE_NAME_SIZE);
 
+    fpointer = fopen(nameOfFile,"r");
+    if(fpointer){
+        fscanf(fpointer, "%d %d",&matrix.numberOfRows,&matrix.numberOfColumns);
+    }
+
+    matrix.mat=malloc(matrix.numberOfRows*sizeof(float*));
+
+    for(int i=0;i<matrix.numberOfRows;++i)
+        matrix.mat[i]=malloc(matrix.numberOfColumns*sizeof(double));
+
+    for(int i = 0; i <matrix.numberOfRows; i++)
+    {
+        for(int j = 0; j < matrix.numberOfColumns; j++)
+        {
+            if (!fscanf(fpointer, "%f", &matrix.mat[i][j]))
+                break;
+            }
+    }
+
+    fclose(fpointer);
+    printf("rows : %d columns: %d\n",matrix.numberOfRows,matrix.numberOfColumns);
+
+    return matrix;
 }
 
 
 int main(int argc, char * argv[])
 {
     fileHandling * files = NULL;
-    matrix_t * matrix = NULL;
+    matrix_t * resultMatrix = NULL;
     files = checkForProgramInput(argc,argv);
     if(files->validInput) {
         if (matrixCanMultiply(files)) {
             printf("Yes they can multiply!\n");
-            // Do the multiplication. Meaning
-            matrix = allocateMemory(files);
-            /*for (int j = 0; j < files->resultingMatrixRows; ++j) {
-                for (int i = 0; i < files->resultingMatrixColumns; ++i) {
-                    printf("%f \t",**(matrix->stackPointers));
-                }
-                printf("\n");
-            }*/
-
-            // Get the memory allocation for the result matrix
-            // Do the actual multiplication
-            // Write the result in an output .txt
+            resultMatrix = allocateMemory(files);
         } else {
             printf("No multiplication can be done!\n");
         }
     }
 
-    matrix->stackPointers[0][1] = 1;
-
     for (int k = 0; k < files->resultingMatrixRows; ++k) {
         for (int i = 0; i < files->resultingMatrixColumns; ++i) {
-            printf("at:[%d][%d][%f]",k,i,matrix->stackPointers[k][i]);
+            printf("at:[%d][%d][%f]", k, i, resultMatrix->stackPointers[k][i]);
         }
         printf("\n");
     }
 
     // Get Matrix A from txt file
-   matrix_t matrixA;
-   initializeMatrix(files);
+   matrix_t matrixA, matrixB;
+   matrixA = initializeMatrix(files,1);
+   matrixB = initializeMatrix(files,2);
+
+    for (int j = 0; j < matrixA.numberOfRows; ++j) {
+        for (int i = 0; i < matrixA.numberOfColumns; ++i) {
+            printf("[%d][%d]: [%f]",j,i,matrixA.mat[j][i]);
+        }
+        printf("\n");
+    }
+
+    for (int j = 0; j < matrixB.numberOfRows; ++j) {
+        for (int i = 0; i < matrixB.numberOfColumns; ++i) {
+            printf("[%d][%d]: [%f]",j,i,matrixB.mat[j][i]);
+        }
+        printf("\n");
+    }
 
 
-
-
-
-    /* int resultMatrix[10][10];
-    printf("multiply of the matrix=\n");
-    for(int i=0;i< files->resultingMatrixRows ;i++)
+    for(int i = 0; i < matrixA.numberOfRows; ++i)
     {
-        for(int j=0; j < files->resultingMatrixColumns; j++)
+        for(int j = 0; j < matrixB.numberOfColumns; ++j)
         {
-            resultMatrix[i][j]=0;
-            for(int k=0; k < files->resultingMatrixColumns; k++)
+            for(int k=0; k<matrixA.numberOfColumns; ++k)
             {
-                resultMatrix[i][j]+=[i][k]*b[k][j];
+                resultMatrix->stackPointers[i][j] += matrixA.mat[i][k] * matrixB.mat[k][j];
             }
         }
-    */
+    }
 
+    for (int k = 0; k < files->resultingMatrixRows; ++k) {
+        for (int i = 0; i < files->resultingMatrixColumns; ++i) {
+            printf("at:[%d][%d][%f]", k, i, resultMatrix->stackPointers[k][i]);
+        }
+        printf("\n");
+    }
+
+
+    // wrute to file result!!
+
+    FILE* fout;
+    fout = fopen("output.txt","w");
+
+
+
+    for (int l = 0; l < files->resultingMatrixRows; ++l) {
+        for (int i = 0; i < files->resultingMatrixColumns; ++i) {
+            float * tmp = &resultMatrix->stackPointers[l][i];
+            fwrite(tmp,1, sizeof(float),fout);
+        }
+    }
+    fclose(fout);
     return 0;
 }
 
