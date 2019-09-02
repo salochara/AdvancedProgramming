@@ -33,8 +33,8 @@ int matrixCanMultiply(fileHandling * files);
 matrix_t * allocateMemory(fileHandling * files);
 matrix_t initializeMatrix(fileHandling* files, int fileNumber);
 void multiplyMatrix(matrix_t matrixA, matrix_t matrixB, matrix_t* resultMatrix);
-void freeingMemory(matrix_t * matrix);
-
+void freeingMemoryPointer(matrix_t * matrix);
+void writeToFile(fileHandling * files, matrix_t * resultMatrix);
 
 
 int main(int argc, char * argv[])
@@ -49,37 +49,15 @@ int main(int argc, char * argv[])
             matrixA = initializeMatrix(files,1);
             matrixB = initializeMatrix(files,2);
             multiplyMatrix(matrixA,matrixB, resultMatrix);
+            writeToFile(files, resultMatrix);
+            freeingMemoryPointer(resultMatrix);
         } else {
             printf("No multiplication can be done!\n");
         }
     }
 
-
-    for (int k = 0; k < files->resultingMatrixRows; ++k) {
-        for (int i = 0; i < files->resultingMatrixColumns; ++i) {
-            printf("at:[%d][%d][%f]", k, i, resultMatrix->stackPointers[k][i]);
-        }
-        printf("\n");
-    }
-
-
-    // write to file result!!
-
-    FILE * fout = NULL;
-    fout = fopen("output.txt","w");
-
-
-    for (int l = 0; l < files->resultingMatrixRows; ++l) {
-        for (int i = 0; i < files->resultingMatrixColumns; ++i) {
-            float * tmp = &resultMatrix->stackPointers[l][i];
-            fwrite(tmp,1, sizeof(float),fout);
-        }
-    }
-    fclose(fout);
     return 0;
 }
-
-
 
 // FUNCTIONS IMPLEMENTATION
 
@@ -200,6 +178,7 @@ matrix_t initializeMatrix(fileHandling* files, int fileNumber)
     return matrix;
 }
 
+// Function for multipliying two marixes and store the result in the pointer passed
 void multiplyMatrix(matrix_t matrixA, matrix_t matrixB, matrix_t* resultMatrix)
 {
     for(int i = 0; i < matrixA.numberOfRows; ++i)
@@ -214,7 +193,8 @@ void multiplyMatrix(matrix_t matrixA, matrix_t matrixB, matrix_t* resultMatrix)
     }
 }
 
-void freeingMemory(matrix_t * matrix)
+// Function for freeing memory reserved with malloc
+void freeingMemoryPointer(matrix_t * matrix)
 {
     for (int i = 0; i < matrix->numberOfRows; ++i)
     {
@@ -223,6 +203,19 @@ void freeingMemory(matrix_t * matrix)
     free(matrix);
 }
 
+// Function for writing to file with the name of file in the files struct
+void writeToFile(fileHandling * files, matrix_t * resultMatrix)
+{
+    char resultFileName[MAX_FILE_NAME_SIZE];
+    strncpy(resultFileName, files->resultFile, MAX_FILE_NAME_SIZE);
+    FILE * fout = NULL;
+    fout = fopen(resultFileName,"w");
 
-
-
+    for (int l = 0; l < files->resultingMatrixRows; ++l) {
+        for (int i = 0; i < files->resultingMatrixColumns; ++i) {
+            fprintf(fout, "%f ", resultMatrix->stackPointers[l][i]);
+        }
+        fprintf(fout,"\n");
+    }
+    fclose(fout);
+}
