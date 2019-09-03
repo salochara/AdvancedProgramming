@@ -10,6 +10,14 @@
 #define FALSE 0
 #define MAX_FILE_NAME_SIZE 20
 
+// TODO EXIT_FAILURE IN EVERY MALLOC
+
+// TODO For freeing malllsocs
+// free(matrix->data[0])
+// free (matrix)
+
+// TODO Make file
+
 // STRUCT DEFINITIONS
 typedef struct {
     char fileOne[MAX_FILE_NAME_SIZE];
@@ -21,10 +29,10 @@ typedef struct {
 } fileHandling;
 
 typedef struct matrix{
-    float ** stackPointers;
+    float ** mat;
     int numberOfRows;
     int numberOfColumns;
-    float ** mat;
+
 } matrix_t;
 
 //FUNCTIONS DEFINITION
@@ -32,7 +40,7 @@ fileHandling * checkForProgramInput(int argc, char * argv[]);
 int matrixCanMultiply(fileHandling * files);
 matrix_t * allocateMemory(fileHandling * files);
 matrix_t initializeMatrix(fileHandling* files, int fileNumber);
-void multiplyMatrix(matrix_t matrixA, matrix_t matrixB, matrix_t* resultMatrix);
+void multiplyMatrix(const matrix_t matrixA, const matrix_t matrixB, matrix_t* resultMatrix);
 void freeingMemoryPointer(matrix_t * matrix);
 void writeToFile(fileHandling * files, matrix_t * resultMatrix);
 
@@ -142,7 +150,7 @@ matrix_t * allocateMemory(fileHandling * files)
     for (int i = 0; i < files->resultingMatrixRows; ++i) {
         localStackPointers[i] = calloc(files->resultingMatrixColumns, sizeof(float));
     }
-    matrix->stackPointers = localStackPointers;
+    matrix->mat = localStackPointers;
 
     return matrix;
 }
@@ -179,7 +187,7 @@ matrix_t initializeMatrix(fileHandling* files, int fileNumber)
 }
 
 // Function for multipliying two marixes and store the result in the pointer passed
-void multiplyMatrix(matrix_t matrixA, matrix_t matrixB, matrix_t* resultMatrix)
+void multiplyMatrix(const matrix_t matrixA, const matrix_t matrixB, matrix_t* resultMatrix)
 {
     for(int i = 0; i < matrixA.numberOfRows; ++i)
     {
@@ -187,7 +195,7 @@ void multiplyMatrix(matrix_t matrixA, matrix_t matrixB, matrix_t* resultMatrix)
         {
             for(int k=0; k<matrixA.numberOfColumns; ++k)
             {
-                resultMatrix->stackPointers[i][j] += matrixA.mat[i][k] * matrixB.mat[k][j];
+                resultMatrix->mat[i][j] += matrixA.mat[i][k] * matrixB.mat[k][j];
             }
         }
     }
@@ -213,7 +221,7 @@ void writeToFile(fileHandling * files, matrix_t * resultMatrix)
 
     for (int l = 0; l < files->resultingMatrixRows; ++l) {
         for (int i = 0; i < files->resultingMatrixColumns; ++i) {
-            fprintf(fout, "%f ", resultMatrix->stackPointers[l][i]);
+            fprintf(fout, "%f ", resultMatrix->mat[l][i]);
         }
         fprintf(fout,"\n");
     }
