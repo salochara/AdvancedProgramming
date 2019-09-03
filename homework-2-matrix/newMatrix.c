@@ -41,18 +41,28 @@ fileHandling * checkForProgramInput(int argc, char * argv[]);
 int matrixCanMultiply(fileHandling * files);
 matrix_t * allocateMemory(fileHandling * files);
 matrix_t initializeMatrix(fileHandling* files, int fileNumber);
-void multiplyMatrix(matrix_t matrixA, matrix_t matrixB, matrix_t* resultMatrix);
+void multiplyMatrix(const matrix_t * matrixA, const matrix_t* matrixB, matrix_t* resultMatrix);
 void freeingMemoryPointer(matrix_t * matrix);
 void writeToFile(fileHandling * files, matrix_t * resultMatrix);
-void helper_checkForRowsAndCols(matrix_t matrix, fileHandling *files, int fileNo);
+void helper_checkForRowsAndCols(matrix_t * matrix, fileHandling *files, int fileNo);
+void allocateMemoryBetter(matrix_t * matrixToAllocate);
+void printMatrix(const matrix_t * matrix);
+void initializeMatrixBetter(matrix_t * matrix, fileHandling * files, int fileNumber);
+void helper_setColumnsAndRowsForResultMatrix(matrix_t * matrix, fileHandling* files);
+void freeMemoryBetter(matrix_t *matrix);
 
 
 int main(int argc, char * argv[])
 {
     fileHandling * files = NULL;
     matrix_t * resultMatrix = NULL;
-    // matrix_t * matrixA = NULL; matrix_t * matrixB = NULL;
-    matrix_t matrixA, matrixB;
+    resultMatrix = malloc(sizeof(matrix_t));
+
+
+    matrix_t * matrixA = NULL;
+    matrixA = malloc(sizeof(matrix_t));
+    matrix_t * matrixB = NULL;
+    matrixB = malloc(sizeof(matrix_t));
     files = checkForProgramInput(argc,argv);
     if(files->validInput) {
         helper_checkForRowsAndCols(matrixA, files, FILE_ONE);
@@ -60,19 +70,30 @@ int main(int argc, char * argv[])
         if (matrixCanMultiply(files)) {
             // Allocate memory for Matrix A with info from .txt 1
 
-
+            allocateMemoryBetter(matrixA);
+            allocateMemoryBetter(matrixB);
+            //printMatrix(*matrixA);
+            //printMatrix(*matrixB);
+            initializeMatrixBetter(matrixA, files, FILE_ONE);
+            initializeMatrixBetter(matrixB,files,FILE_TWO);
+            printMatrix(matrixA);
+            printMatrix(matrixB);
+            helper_setColumnsAndRowsForResultMatrix(resultMatrix,files); // for setting cols and rows for result matrix
+            allocateMemoryBetter(resultMatrix);
+            printMatrix(resultMatrix);
+            multiplyMatrix(matrixA,matrixB,resultMatrix);
+            printMatrix(resultMatrix);
+            writeToFile(files, resultMatrix);
+            freeMemoryBetter(matrixA);
+            freeMemoryBetter(matrixB);
+            freeMemoryBetter(resultMatrix);
             // Initialize Matrix A with .txt 1
             // Initialize Matrix B with .txt 2
             // Allocate memory for resulting matrix
             // Multiply matrix A*B
             // Write to file the result
-            resultMatrix = allocateMemory(files);
-            matrix_t matrixA, matrixB;
-            matrixA = initializeMatrix(files,FILE_ONE);
-            matrixB = initializeMatrix(files,FILE_TWO);
-            multiplyMatrix(matrixA,matrixB, resultMatrix);
-            writeToFile(files, resultMatrix);
-            freeingMemoryPointer(resultMatrix);
+            // Free the memory
+
         } else {
             exit(EXIT_SUCCESS);
         }
@@ -83,7 +104,32 @@ int main(int argc, char * argv[])
 
 // FUNCTIONS IMPLEMENTATION
 
-void helper_checkForRowsAndCols(matrix_t matrix, fileHandling *files, int fileNo)
+void helper_setColumnsAndRowsForResultMatrix(matrix_t * matrix, fileHandling* files)
+{
+    matrix->numberOfColumns = files->resultingMatrixColumns;
+    matrix->numberOfRows = files->resultingMatrixRows;
+}
+
+void freeMemoryBetter(matrix_t *matrix)
+{
+    free(matrix->mat[0]);
+    free(matrix->mat);
+    free(matrix);
+}
+
+void printMatrix(const matrix_t * matrix)
+{
+    for (int i = 0; i < matrix->numberOfRows; ++i) {
+        for (int j = 0; j < matrix->numberOfColumns; ++j) {
+            printf("%f ", matrix->mat[i][j]);
+        }
+        printf("\n");
+    }
+}
+
+
+
+void helper_checkForRowsAndCols(matrix_t * matrix, fileHandling *files, int fileNo)
 {
     //(matrix->numberOfRows) = 3;
 
@@ -170,7 +216,7 @@ int matrixCanMultiply(fileHandling * files)
         return FALSE;
     }
 
-    // Check if both matrices can multiply
+    // Check if both matrices can multiply and store the columns and rows needed for the result matrix
     if (columnsFileOne == rowsFileTwo){
         files->resultingMatrixColumns = columnsFileTwo;
         files->resultingMatrixRows = rowsFileOne;
@@ -182,7 +228,7 @@ int matrixCanMultiply(fileHandling * files)
 }
 
 // Function for allocating memory for the result matrix
-matrix_t allocateMemoryBetter(matrix_t * matrixToAllocate)
+void allocateMemoryBetter(matrix_t * matrixToAllocate)
 {
 
     matrixToAllocate->mat = (float**)malloc(matrixToAllocate->numberOfRows * sizeof(float*));
@@ -192,7 +238,7 @@ matrix_t allocateMemoryBetter(matrix_t * matrixToAllocate)
         exit(EXIT_FAILURE);
     }
 
-    matrixToAllocate->mat[0] = (float*)calloc(matrixToAllocate->numberOfRows * matrixToAllocate->numberOfRows, sizeof(float));
+    matrixToAllocate->mat[0] = (float*)calloc(matrixToAllocate->numberOfRows * matrixToAllocate->numberOfColumns, sizeof(float));
     if(matrixToAllocate->mat[0] == NULL)
     {
         printf("Malloc error\n");
@@ -224,58 +270,38 @@ matrix_t * allocateMemory(fileHandling * files)
     return matrix;
 }
 
-
-
-
-// Function for initializing matrix with the values passed with the two txt files
-matrix_t initializeMatrix(fileHandling* files, int fileNumber)
+void initializeMatrixBetter(matrix_t * matrix, fileHandling * files, int fileNumber)
 {
-    matrix_t matrix;
-    FILE * fpointer = NULL;
-    char nameOfFile[MAX_FILE_NAME_SIZE];
+    FILE* fptr = NULL;
+    char fileName [MAX_FILE_NAME_SIZE];
+    fileNumber == 1 ? strncpy(fileName,files->fileOne,MAX_FILE_NAME_SIZE) : strncpy(fileName,files->fileTwo,MAX_FILE_NAME_SIZE);
 
-    // Needed fot the fopen function.
-    (fileNumber == 1) ?  strncpy(nameOfFile, files->fileOne,MAX_FILE_NAME_SIZE) : strncpy(nameOfFile,files->fileTwo,MAX_FILE_NAME_SIZE);
-
-    // Open the file and get the number of rows and cols
-    fpointer = fopen(nameOfFile,"r");
-    if(fpointer){
-        fscanf(fpointer, "%d %d",&matrix.numberOfRows,&matrix.numberOfColumns);
-    }else{
-        printf("Error opening the file\n");
-        exit(EXIT_SUCCESS);
-    }
-
-
-
-    matrix.mat=malloc(matrix.numberOfRows*sizeof(float*));
-
-    for(int i=0;i<matrix.numberOfRows;++i)
-        matrix.mat[i]=malloc(matrix.numberOfColumns*sizeof(float));
-
-    for(int i = 0; i <matrix.numberOfRows; i++)
+    fptr = fopen(fileName,"r");
+    fscanf(fptr, "%*[^\n]"); // for skipping the first line
+    for(int i = 0; i <matrix->numberOfRows; i++)
     {
-        for(int j = 0; j < matrix.numberOfColumns; j++)
+        for(int j = 0; j < matrix->numberOfColumns; j++)
         {
-            if (!fscanf(fpointer, "%f", &matrix.mat[i][j]))
+            if (!fscanf(fptr, "%f", &matrix->mat[i][j]))
                 break;
         }
     }
-
-    fclose(fpointer);
-    return matrix;
+    fclose(fptr);
 }
 
+
+// Function for initializing matrix with the values passed with the two txt files
+
 // Function for multipliying two marixes and store the result in the pointer passed
-void multiplyMatrix(matrix_t matrixA, matrix_t matrixB, matrix_t* resultMatrix)
+void multiplyMatrix(const matrix_t * matrixA, const matrix_t * matrixB, matrix_t * resultMatrix)
 {
-    for(int i = 0; i < matrixA.numberOfRows; ++i)
+    for(int i = 0; i < matrixA->numberOfRows; ++i)
     {
-        for(int j = 0; j < matrixB.numberOfColumns; ++j)
+        for(int j = 0; j < matrixB->numberOfColumns; ++j)
         {
-            for(int k=0; k<matrixA.numberOfColumns; ++k)
+            for(int k=0; k<matrixA->numberOfColumns; ++k)
             {
-                resultMatrix->mat[i][j] += matrixA.mat[i][k] * matrixB.mat[k][j];
+                resultMatrix->mat[i][j] += matrixA->mat[i][k] * matrixB->mat[k][j];
             }
         }
     }
