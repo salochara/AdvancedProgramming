@@ -9,6 +9,7 @@
 .idea/**/shelf
 a.out
 .idea/**
+.idea
 
 # Generated files
 .idea/**/contentModel.xml
