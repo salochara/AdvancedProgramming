@@ -1,6 +1,9 @@
 // Created by Salomón Charabati on 2019-08-27.
 // Advanced Programming in C
 // Matrix Project with memory allocation contiguous
+// TODO Make file
+// TODO el malloc que se hace en la función fileHandling, como se libera ?
+
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
@@ -12,8 +15,6 @@
 #define FILE_ONE 1
 #define FILE_TWO 2
 
-// TODO Make file
-// TODO el malloc que se hace en la función fileHandling, como se libera ?
 
 // STRUCT DEFINITIONS
 typedef struct {
@@ -31,7 +32,7 @@ typedef struct matrix{
     int numberOfColumns;
 } matrix_t;
 
-//FUNCTIONS DEFINITION
+//FUNCTIONS DEFINITIONS
 fileHandling * checkForProgramInput(int argc, char * argv[]);
 int matrixCanMultiply(matrix_t * matrixA, matrix_t * matrixB, fileHandling * files);
 void multiplyMatrix(const matrix_t * matrixA, const matrix_t* matrixB, matrix_t* resultMatrix);
@@ -159,7 +160,7 @@ fileHandling * checkForProgramInput(int argc, char * argv[])
     files = malloc(1 * sizeof(fileHandling));
 
     if(argc != 7){
-        printf("File not run with needed commands\n It need to be in this format  ./multiplication -1 {filename_matrix_1} -2 {filename_matrix_2} -r {filename_matrix_result}\n");
+        printf("File not run with needed commands\nIt needs to be in this format  ./multiplication -1 {filename_matrix_1} -2 {filename_matrix_2} -r {filename_matrix_result}\n");
         files->validInput = FALSE;
         exit(EXIT_SUCCESS);
     }
