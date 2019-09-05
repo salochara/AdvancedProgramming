@@ -8,142 +8,61 @@
 #include "linked_list.h"
 #define VALUE_NOT_FOUND -1
 
+//-------FUNCTIONS IMPLEMENTATIONS---------//
 
-// TODO Print recursively
+// ------- Functions for insertion --------//
 
-
-// FUNCTIONS IMPLEMENTATIONS
-void predefinedOperations()
+node_t * insertAtPosition(node_t *head, int data, int position)
 {
-    node_t * head = NULL;
+    // If the list is empty and position is 0
+    if(head == NULL && position > 0)
+        printf("The list is empty. You can't insert at position %d\n", position);
+    // If desired position is 0
+    else if (position == 0)
+        head = insertHead(head, data);
 
-    head = insertSomething(head);
-    head = searchForSomething(head);
-    head = deleteSomething(head);
+    // For position > 0
+    else{
+        node_t * traverse = head;
+        node_t * traverseBefore = NULL;
+        node_t * newNode = createNode(data);
+        mallocChecker(traverse);
 
-    // Free the memory used
-    head = clear(head);
-}
-
-
-
-node_t * insertSomething(node_t * head)
-{
-    head = insertHead(head, 4);
-    head = insertHead(head, 286);
-    head = insertHead(head, 67);
-    head = insertHead(head, 729);
-
-    printf("List after head inserts: \n");
-    printList(head);
-
-    head = insertAtPosition(head, 5, 2);
-    head = insertAtPosition(head, 77, 4);
-    head = insertAtPosition(head, 83, 0);
-
-    printf("List after position inserts: \n");
-    printList(head);
-
-    printf("List printed recursively: \n");
-    printRecursive(head);
-
-    return head;
-}
-
-node_t * deleteSomething(node_t * head)
-{
-    head = deleteHead(head);
-    head = deleteHead(head);
-    head = deleteHead(head);
-
-    printf("List after 3 head deletes: \n");
-    printList(head);
-
-    head = deleteFromPosition(head, 2);
-    head = deleteFromPosition(head, 0);
-
-    printf("List after deletes from indices 2 and 0: \n");
-    printList(head);
-
-    return head;
-}
-
-node_t * searchForSomething(node_t * head)
-{
-    int num_search = 67;
-    int position = -1;
-
-    position = searchIterative(head, num_search);
-    if (position >= 0)
-    {
-        printf("Element %d found at index %d\n", num_search, position);
-    }
-    else
-    {
-        printf("Element %d not found!\n", num_search);
-    }
-
-    num_search = 100;
-    position = searchIterative(head, num_search);
-    if (position >= 0)
-    {
-        printf("Element %d found at index %d\n", num_search, position);
-    }
-    else
-    {
-        printf("Element %d not found!\n", num_search);
-    }
-
-    return head;
-}
-
-int getLength(node_t * head)
-{
-    // If list is empty
-    if(head == NULL)
-    {
-        printf("The list is empty\n");
-        return 0;
-    }
-
-    // If there is only one element
-    if(head->next == NULL)
-        return  1;
-
-    // If there is > 1 element
-    node_t * traverse = head;
-    int count = 0;
-    while(traverse != NULL)
-    {
-        traverse = traverse->next;
-        count++;
-    }
-    return count;
-}
-
-node_t * clear(node_t * head)
-{
-    node_t * toDelete = NULL;
-    while(head != NULL)
-    {
-        toDelete = head;
-        head = head->next;
-        free(toDelete);
-    }
-    return head;
-}
-
-int searchIterative(node_t * head, int data)
-{
-    int index = 0;
-    for (node_t * traverse = head;  traverse != NULL ; traverse = traverse->next) {
-        if(traverse->data == data){
-            return index;
+        int count = 0;
+        while(traverse != NULL)
+        {
+            // If the index is found
+            if(count == position)
+            {
+                newNode->next = traverseBefore->next;
+                traverseBefore->next = newNode;
+                break;
+            }
+            traverseBefore = traverse;
+            traverse = traverse->next;
+            count++;
         }
-        index++;
+        // It's at the end of the list. Traverse is null.
+        if(traverse == NULL)
+        {
+            traverseBefore->next = newNode;
+            newNode->next = NULL;
+        }
+
     }
-    return VALUE_NOT_FOUND;
+    return head;
+
 }
+
+node_t * insertHead(node_t *head, int data)
+{
+    node_t * newNode = createNode(data);
+    newNode->next = head;
+    head = newNode;
+    return head;
+}
+
+// ------- Functions for deletion --------//
 
 node_t * deleteFromPosition(node_t * head, int position)
 {
@@ -187,71 +106,68 @@ node_t * deleteHead(node_t * head)
     return head;
 }
 
-node_t * insertHead(node_t *head, int data)
+//------------  Search  ----------------------//
+
+int searchIterative(node_t * head, int data)
 {
-    node_t * newNode = malloc(sizeof(node_t));
-    mallocChecker(newNode);
-    newNode->data = data;
-    newNode->next = head;
-    head = newNode;
-    return head;
+    int index = 0;
+    for (node_t * traverse = head;  traverse != NULL ; traverse = traverse->next) {
+        if(traverse->data == data){
+            return index;
+        }
+        index++;
+    }
+    return VALUE_NOT_FOUND;
 }
 
-node_t * insertAtPosition(node_t *head, int data, int position)
+// ------------- Helpers  ---------------//
+
+node_t * clear(node_t * head)
 {
-    // If the list is empty
-    if(head == NULL && position > 0)
+    node_t * toDelete = NULL;
+    while(head != NULL)
     {
-        printf("The list is empty. You can't insert at position %d\n",position);
-    }else if(position == 0){ // if position is 0
-        node_t * newNode = malloc(sizeof(node_t));
-        mallocChecker(newNode);
-        newNode->data = data;
-        newNode->next = head;
-        head = newNode;
-    }else{  // For position > 0
-        // Create a new node_struct
-        node_t * traverse = head;
-        node_t * traverseBefore = NULL;
-        node_t * newNode = malloc(sizeof(node_t));
-        newNode->data = data;
-        mallocChecker(newNode);
-        // Check for malloc error
-        mallocChecker(traverse);
-
-        int count = 0;
-        while(traverse != NULL)
-        {
-            // If the index is found
-            if(count == position)
-            {
-                newNode->next = traverseBefore->next;
-                traverseBefore->next = newNode;
-                break;
-            }
-            traverseBefore = traverse;
-            traverse = traverse->next;
-            count++;
-        }
-        // It's at the end of the list
-        if(traverse == NULL)
-        {
-            traverseBefore->next = newNode;
-            newNode->next = NULL;
-        }
-
+        toDelete = head;
+        head = head->next;
+        free(toDelete);
     }
     return head;
-
 }
 
-void mallocChecker(node_t * node)
+int getLength(node_t * head)
 {
-    if(node == NULL)
+    // If list is empty
+    if(head == NULL)
+    {
+        printf("The list is empty\n");
+        return 0;
+    }
+
+    // If there is only one element
+    if(head->next == NULL)
+        return  1;
+
+    // If there is > 1 element
+    node_t * traverse = head;
+    int count = 0;
+    while(traverse != NULL)
+    {
+        traverse = traverse->next;
+        count++;
+    }
+    return count;
+}
+
+node_t * createNode(int data)
+{
+    node_t * newNode = malloc(sizeof(node_t));
+    if(newNode == NULL)
     {
         printf("Malloc error\n");
         exit(EXIT_FAILURE);
     }
+    newNode->data = data;
+    return newNode;
 }
 
 void printList(node_t * head)
@@ -276,3 +192,21 @@ void printRecursive(node_t * head)
     printRecursive(traverse->next);
 
 }
+
+void mallocChecker(node_t * node)
+{
+    if(node == NULL)
+    {
+        printf("Malloc error\n");
+        exit(EXIT_FAILURE);
+    }
+}
+
+
+
+
+
+
+
+
+

@@ -36,12 +36,4 @@ node_t * createNode(int data);
 void mallocChecker(node_t * node);
 
 
-
-// For testing
-void predefinedOperations();
-node_t * insertSomething(node_t * head);
-node_t * searchForSomething(node_t * head);
-node_t * deleteSomething(node_t * head);
-
-
 #endif
