@@ -46,7 +46,7 @@ node_t * insertSomething(node_t * head)
     printf("List after head inserts: \n");
     printList(head);
 
-    head = insertAtPosition(head, 5, 2);
+    head = insertAtPosition(head, 5, 15);
     head = insertAtPosition(head, 77, 4);
     head = insertAtPosition(head, 83, 0);
 
@@ -89,7 +89,7 @@ node_t * searchForSomething(node_t * head)
     }
     else
     {
-        printf("Element %d not found!\n", num_search);
+        printf("Element %d not found\n", num_search);
     }
 
     num_search = 100;
@@ -100,7 +100,7 @@ node_t * searchForSomething(node_t * head)
     }
     else
     {
-        printf("Element %d not found!\n", num_search);
+        printf("Element %d not found\n", num_search);
     }
 
     return head;

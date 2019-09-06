@@ -8,10 +8,11 @@
 #include "linked_list.h"
 #define VALUE_NOT_FOUND -1
 
-//-------FUNCTIONS IMPLEMENTATIONS---------//
+//-------FUNCTIONS IMPLEMENTATION---------//
 
 // ------- Functions for insertion --------//
 
+// Function for inserting at any position in the linked list.
 node_t * insertAtPosition(node_t *head, int data, int position)
 {
     // If the list is empty and position is 0
@@ -42,7 +43,7 @@ node_t * insertAtPosition(node_t *head, int data, int position)
             traverse = traverse->next;
             count++;
         }
-        // It's at the end of the list. Traverse is null.
+        // It's at the end of the list or the position is higher than the list length.
         if(traverse == NULL)
         {
             traverseBefore->next = newNode;
@@ -54,6 +55,7 @@ node_t * insertAtPosition(node_t *head, int data, int position)
 
 }
 
+// Function for inserting a new node only at the head of the linked list
 node_t * insertHead(node_t *head, int data)
 {
     node_t * newNode = createNode(data);
@@ -64,12 +66,14 @@ node_t * insertHead(node_t *head, int data)
 
 // ------- Functions for deletion --------//
 
+// Function for deleting a node from any given position
 node_t * deleteFromPosition(node_t * head, int position)
 {
-    if(position == 0)
-    {
+    if(head == NULL) // For safety. In case that traverse is null, beforeTraverse in the free() method wouldn't have a reference.
+        printf("The list is empty\n");
+    else if(position == 0)
         head = deleteHead(head);
-    }else{
+    else{
         node_t * traverse = head;
         node_t * beforeTraverse = NULL;
         int count = 0;
@@ -92,6 +96,7 @@ node_t * deleteFromPosition(node_t * head, int position)
     return head;
 }
 
+// Function for deleting a node at the head of the list
 node_t * deleteHead(node_t * head)
 {
     if(head == NULL){
@@ -108,6 +113,7 @@ node_t * deleteHead(node_t * head)
 
 //------------  Search  ----------------------//
 
+// Function for searching iterative through the list
 int searchIterative(node_t * head, int data)
 {
     int index = 0;
@@ -117,11 +123,12 @@ int searchIterative(node_t * head, int data)
         }
         index++;
     }
-    return VALUE_NOT_FOUND;
+    return VALUE_NOT_FOUND; // -1
 }
 
 // ------------- Helpers  ---------------//
 
+// Helper function for clearing the list. Freeing all the memory dynamically allocated.
 node_t * clear(node_t * head)
 {
     node_t * toDelete = NULL;
@@ -134,6 +141,7 @@ node_t * clear(node_t * head)
     return head;
 }
 
+// Helper function for getting the length of the list
 int getLength(node_t * head)
 {
     // If list is empty
@@ -158,6 +166,7 @@ int getLength(node_t * head)
     return count;
 }
 
+// Helper function for creating a node and checking for the success/failure of malloc
 node_t * createNode(int data)
 {
     node_t * newNode = malloc(sizeof(node_t));
@@ -170,6 +179,7 @@ node_t * createNode(int data)
     return newNode;
 }
 
+// Helper function for printing the list
 void printList(node_t * head)
 {
     node_t *traverse = NULL;
@@ -182,6 +192,7 @@ void printList(node_t * head)
     printf("-------------------------------\n");
 }
 
+// Helper function for printing the list recursively
 void printRecursive(node_t * head)
 {
     node_t * traverse = head;
@@ -193,6 +204,7 @@ void printRecursive(node_t * head)
 
 }
 
+// Helper function for checking the success/failure of malloc
 void mallocChecker(node_t * node)
 {
     if(node == NULL)
