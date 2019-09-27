@@ -8,50 +8,42 @@
 
 int main()
 {
-    char msg[] = "this should be very interesting, and not too difficult. you can use all lowercase letters for your messages, encryptions and keys";
+    char msg[] = "this should be ";
     char key[] = "prograavanzada";
+    char encryptedMsg[50];
 
+    int messageLength = strlen(msg);
+    int keyLength = strlen(key);
 
-
-        int msgLen = strlen(msg), keyLen = strlen(key), i, j;
-
-        char newKey[msgLen], encryptedMsg[msgLen], decryptedMsg[msgLen];
-
-        //generating new key
-        for(i = 0, j = 0; i < msgLen; ++i, ++j){
-            if(j == keyLen)
-                j = 0;
-
-            newKey[i] = key[j];
-        }
-
-        newKey[i] = '\0';
-
-        //encryption
-        for(i = 0, j= 0; i < msgLen;)
+    for (int i = 0, j = 0; i < messageLength ; ++i, ++j)
+    {
+        if(j == keyLength)
         {
-            if(!isalpha(msg[i]))
-            {
-                encryptedMsg[i] = msg[i];
-                encryptedMsg[i] = msg[i];
-            }else{
-                encryptedMsg[i] = (  (msg[i] - 'a' + newKey[i] - 'a') % 26 )  + 'a';
-            }
-
+            j = 0;
         }
-        encryptedMsg[i] = '\0';
 
-        //decryption
-        for(i = 0; i < msgLen; ++i)
-            decryptedMsg[i] = (((encryptedMsg[i] - newKey[i]) + 26) % 26) + 'A';
 
-        decryptedMsg[i] = '\0';
+        if(!isalpha(msg[i]))
+        {
+            printf("Copying %c\n", msg[i]);
+            encryptedMsg[i] = msg[i];
+            continue;
+        }
 
-        printf("Original Message: %s", msg);
-        printf("\nKey: %s", key);
-        printf("\nNew Generated Key: %s", newKey);
-        printf("\nEncrypted Message: %s", encryptedMsg);
-        printf("\nDecrypted Message: %s", decryptedMsg);
-
-        return 0;
+        if(isalpha(msg[i]))
+        {
+            printf("Changing %c for %c\n", msg[i], key[j]);
+            encryptedMsg[i] = (  (msg[i] - 'a' + key[j] - 'a') % 26 )  + 'a';
+        }
     }
+
+
+
+
+    printf("Original Message: %s", msg);
+    printf("\nKey: %s", key);
+    printf("\nEncrypted Message: %s", encryptedMsg);
+  //  printf("\nDecrypted Message: %s", decryptedMsg);
+
+    return 0;
+}
