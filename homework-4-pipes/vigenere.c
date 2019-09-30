@@ -18,17 +18,21 @@ Wait for user input, to provide key
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include <ctype.h>
 #define MAX_STRING_SIZE 30
+#define BUFFER_SIZE 200
 
 void getUserInput(char decodeEncodeOption[], char filename[], char key[]);
 void openPipes(int *parentToChild, int *childToParent);
 void printPipes(int pipeOne[], int pipeTwo[]);
 char * vigenere(char decodeEncodeOption [], char inputFileName [], char key []);
+char * vigenere_decode(char inputFileName[],char key[]);
 int main()
 {
     char decodeEncodeOption[MAX_STRING_SIZE], fileName[MAX_STRING_SIZE], key[MAX_STRING_SIZE];
-    char resultFileName[MAX_STRING_SIZE];
-    //getUserInput(decodeEncodeOption, fileName, key);
+    char * resultFileName;
+
+    getUserInput(decodeEncodeOption, fileName, key);
 
     // Open the pipes
     int parent_to_child[2];
@@ -41,7 +45,7 @@ int main()
     pid_t new_pid;
     new_pid = fork();
 
-    vigenere(decodeEncodeOption, fileName, key);
+    resultFileName = vigenere(decodeEncodeOption, fileName, key);
 
     // Identify the processes
     if(new_pid > 0) // Parent process
@@ -61,9 +65,61 @@ int main()
 
 char * vigenere(char decodeEncodeOption [], char inputFileName [], char key [])
 {
+    char * resultFileNameLocal;
+    // Encode or decrypt?
+    if(decodeEncodeOption[0] == 'd')
+    {
+        resultFileNameLocal = vigenere_decode(inputFileName,key);
+    }
+
+
+    // call vigenere for encrypt or decrypt
 
 
 
+
+
+
+}
+char * vigenere_decode(char inputFileName[],char key[])
+{
+    FILE * filePointer = NULL;
+    char buffer[BUFFER_SIZE];
+    filePointer = fopen(inputFileName,"r");
+
+    FILE * fileOutputPointer = NULL;
+    fileOutputPointer = fopen("AQUIII.txt", "w");
+
+    // encoded_aladdin.txt
+    // Read what comes from the fifo file until the end
+
+    int keyLength = strlen(key);
+    char decryptedMsg[MAX_STRING_SIZE];
+    while (fgets(buffer, BUFFER_SIZE, filePointer))
+    {
+        size_t sizeOfBuffer = strlen(buffer);
+        for (int i = 0, j = 0; i < sizeOfBuffer ; ++i, ++j)
+        {
+            if(j == keyLength)
+                j = 0;
+
+            if(!isalpha(buffer[i])){
+                buffer[i] = buffer[i];
+                decryptedMsg[i] = buffer[i]; // for decrypt
+                continue;
+            }
+            if(isalpha(buffer[i])){
+                //encryptedMsg[i] = (  (msg[i] - 'a' + key[j] - 'a') % 26 )  + 'a'; // for encrypt
+                int letter = (( buffer[i] -'a')  - (key[j] -'a') + 26 ) % 26; // for decryot
+                decryptedMsg[i] = letter + 'a';
+                buffer[i] = letter +'a';
+            }
+        }
+        fprintf(fileOutputPointer,"%s",buffer);
+        printf("\n%s\n",buffer);
+    }
+
+    fclose(filePointer);
 
 
 }
@@ -90,13 +146,16 @@ void openPipes(int *parentToChild, int *childToParent)
 void getUserInput(char * decodeEncodeOption, char * filename, char * key)
 {
    printf("Do you want to encode or decode?(d/e): \t");
-   scanf("%s", decodeEncodeOption);
+   strncpy(decodeEncodeOption, "d", MAX_STRING_SIZE);
+   //scanf("%s", decodeEncodeOption);
 
    printf("Type the filename:\t");
-   scanf("%s",filename);
+   strncpy(filename,"encoded_aladdin.txt",MAX_STRING_SIZE);
+   //scanf("%s",filename);
 
    printf("Type the key:\t");
-   scanf("%s",key);
+   strncpy(key,"prograavanzada",MAX_STRING_SIZE);
+   //scanf("%s",key);
 
 }
 
