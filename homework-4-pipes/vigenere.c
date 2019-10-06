@@ -17,6 +17,7 @@ void openPipes(int *parentToChild, int *childToParent);
 void printPipes(int pipeOne[], int pipeTwo[]);
 char * vigenere(char decodeEncodeOption [], char inputFileName [], char key []);
 char * vigenere_decode(char inputFileName[],char key[]);
+char * vigenere_algorithm(char *inputFileName, char key[], int option);
 char * prepareFileName(char inputFileName[],int option);
 int main()
 {
@@ -77,36 +78,92 @@ int main()
 
 char * prepareFileName(char inputFileName[],int option)
 {
+    char outputFileName[MAX_STRING_SIZE];
+    if(option == ENCODE_OPTION)
+    {
+       strncpy(outputFileName,"encoded_",MAX_STRING_SIZE);
+       strncat(outputFileName,inputFileName,MAX_STRING_SIZE);
+    }
 
-   if(option == 1)
-   {
-       char encoded_[MAX_STRING_SIZE] = "encoded_";
-       strncat(encoded_,inputFileName,MAX_STRING_SIZE);
-   }else if(option == 0)
-   {
-       char decoded_[MAX_STRING_SIZE] = "decoded_";
-       strncat(decoded_,inputFileName,MAX_STRING_SIZE);
-   }
-
+    return outputFileName;
 }
 char * vigenere(char decodeEncodeOption [], char inputFileName [], char key [])
 {
     char * resultFileNameLocal;
     printf("\n opcion:%s\n",decodeEncodeOption);
-    // Encode or decrypt?
-    if(strncmp(decodeEncodeOption,"d",MAX_STRING_SIZE) == 0)
-    {
-        printf("si\n");
-        resultFileNameLocal = vigenere_decode(inputFileName,key);
-    }else {
-        printf("no\n");
-        // vigenere encode
-    }
 
+    // Encode or decrypt?
+    strncmp(decodeEncodeOption, "d", MAX_STRING_SIZE) == 0 ? vigenere_algorithm(inputFileName, key, DECODE_OPTION)
+    : vigenere_algorithm(inputFileName, key, ENCODE_OPTION);
 
 }
 
 // call vigenere for encrypt or decrypt
+
+char * vigenere_algorithm(char *inputFileName, char key[], int option)
+{
+    char buffer[BUFFER_SIZE];
+    char resultFileName[MAX_STRING_SIZE];
+    // Open up file
+    FILE * filePointer = NULL;
+    filePointer = fopen(inputFileName,"r");
+    // Check for any errors in file pointer for input file
+    if(filePointer == NULL){ printf("Cant find file '%s'", inputFileName); perror("File error"); exit(EXIT_FAILURE);}
+    // Open up output file
+    FILE * fileOutputPointer = NULL;
+
+    // Prepare output file name
+    if(option == ENCODE_OPTION)
+    {
+        // Set the output file name to be "encoded_{file_name}.txt"
+        char outputFileName[MAX_STRING_SIZE];
+        strncpy(outputFileName,"encoded_",MAX_STRING_SIZE);
+        strncat(outputFileName,inputFileName,MAX_STRING_SIZE);
+        fileOutputPointer = fopen(outputFileName, "w");
+        strncpy(resultFileName,outputFileName,MAX_STRING_SIZE);
+    }else if(option == DECODE_OPTION)
+    {
+        // Set the output file name to be "{file_name}.txt"
+        char * outputFileName = NULL;
+        outputFileName = strtok(inputFileName,"_");
+        outputFileName = strtok(NULL," ");
+        fileOutputPointer = fopen(outputFileName, "w");
+        strncpy(resultFileName,outputFileName,MAX_STRING_SIZE);
+    }
+
+    // Check for any errors in file pointer for output file
+    if(fileOutputPointer == NULL){ printf("Can't open file for result\n"); exit(EXIT_FAILURE);}
+    printf("\nresultfileName: %s",resultFileName);
+
+    int keyLength = strlen(key);
+    int i = 0, j= 0;
+    char newMessage[200]; // new encrypted or decrypted message
+    while (fgets(buffer, BUFFER_SIZE, filePointer))
+    {
+        size_t sizeOfBuffer = strlen(buffer);
+        for (i = 0; i < sizeOfBuffer ; ++i, ++j)
+        {
+            if(!isalpha(buffer[i])){
+                newMessage[i] = buffer[i];
+                continue;
+            }
+            if(isalpha(buffer[i]))
+            {
+                // Only change in algorithm for encryption or decryption
+                if(option == DECODE_OPTION)
+                    newMessage[i] = ((( buffer[i] -'a')  - (key[j % keyLength] -'a') + 26 ) % 26) + 'a'; // for decrypt
+                else if(option == ENCODE_OPTION)
+                    newMessage[i] = ((buffer[i] - 'a' + key[j % keyLength] - 'a') % 26 ) + 'a'; // for encrypt
+            }
+        }
+        newMessage[i] ='\0';
+        fprintf(fileOutputPointer, "%s", newMessage);
+    }
+
+    fclose(filePointer);
+
+}
+
 
 char * vigenere_decode(char inputFileName[],char key[])
 {
@@ -117,12 +174,8 @@ char * vigenere_decode(char inputFileName[],char key[])
     fflush(stdout);
 
     filePointer = fopen(inputFileName,"r");
-    if(filePointer == NULL)
-    {
-        printf("Cant find file '%s'", inputFileName);
-        perror("File error");
-
-    }
+    // Checking for any file error
+    if(filePointer == NULL){ printf("Cant find file '%s'", inputFileName); perror("File error");}
 
     FILE * fileOutputPointer = NULL;
     fileOutputPointer = fopen("AQUIII.txt", "w");
@@ -149,9 +202,11 @@ char * vigenere_decode(char inputFileName[],char key[])
             }
             if(isalpha(buffer[i])){
                 //encryptedMsg[i] = (  (msg[i] - 'a' + key[j] - 'a') % 26 )  + 'a'; // for encrypt
-                int letter = (( buffer[i] -'a')  - (key[j % keyLength] -'a') + 26 ) % 26; // for decryot
-                decryptedMsg[i] = letter + 'a';
+                //int letter = (( buffer[i] -'a')  - (key[j % keyLength] -'a') + 26 ) % 26; // for decryot
+                //decryptedMsg[i] = letter + 'a';
                 //buffer[i] = letter +'a';
+                decryptedMsg[i] = ((( buffer[i] -'a')  - (key[j % keyLength] -'a') + 26 ) % 26) + 'a';
+
             }
             //printf("%s\n",buffer);
         }
@@ -188,11 +243,11 @@ void openPipes(int *parentToChild, int *childToParent)
 void getUserInput(char * decodeEncodeOption, char * filename, char * key)
 {
    //printf("Do you want to encode or decode?(d/e): \t");
-   strncpy(decodeEncodeOption, "d", MAX_STRING_SIZE);
+   strncpy(decodeEncodeOption, "e", MAX_STRING_SIZE);
    //scanf("%s", decodeEncodeOption);
 
    //printf("Type the filename:\t");
-   strncpy(filename,"encoded_aladdin.txt",MAX_STRING_SIZE);
+   strncpy(filename,"aladdin.txt",MAX_STRING_SIZE);
    //scanf("%s",filename);
 
    //printf("Type the key:\t");
