@@ -1,6 +1,7 @@
 //
-// Created by Salomón Charabati on 2019-09-26.
-//
+// Created by Salomón Charabati on 2019-10-06.
+// Advanced Programming
+// Homework #4 Vigenere Cypher
 
 #include "vigenere.h"
 
@@ -190,5 +191,6 @@ void getUserInput(char * decodeEncodeOption, char * filename, char * key)
 
    printf("Type the key:\t");
    scanf("%s",key);
+   printf("\n");
 }
 
