@@ -38,7 +38,7 @@ int runProgram()
 
     }else if(new_pid == 0) // Child process
     {
-        printf("- (child) Running PID: %d\n",getpid());
+
         char * option, *fileNameTok, *keyTok;
         // Reading from parent_to_child pipe, the user input that's passed
         read(parent_to_child[0],buffer,MAX_STRING_SIZE);
@@ -151,19 +151,44 @@ void openPipes(int *parentToChild, int *childToParent)
     if(status < 0 ){ exit(EXIT_FAILURE); }
 }
 
-// Get user input needed for using the program
+// Get user input needed for using the program and validates the user input
 void getUserInput(char * decodeEncodeOption, char * filename, char * key)
 {
-   //printf("Do you want to encode or decode?(d/e): \t");
-   strncpy(decodeEncodeOption, "d", MAX_STRING_SIZE);
-   //scanf("%s", decodeEncodeOption);
 
-   //printf("Type the filename (the file needs to be in this directory):\t");
-   strncpy(filename,"encoded_aladdin.txt",MAX_STRING_SIZE);
-   //scanf("%s",filename);
+   printf("Do you want to encode or decode?(d/e): \t");
+   scanf("%s", decodeEncodeOption);
+   // Validating the option typed by the user
+   if(strncmp(decodeEncodeOption,"d",MAX_STRING_SIZE) != 0 && strncmp(decodeEncodeOption,"e",MAX_STRING_SIZE) != 0)
+   {
+       printf("Invalid option. It's either 'd' or 'e' \n");
+       exit(EXIT_SUCCESS);
+   }
 
-   //printf("Type the key:\t");
-   strncpy(key,"prograavanzada",MAX_STRING_SIZE);
-   //scanf("%s",key);
+   printf("Type the filename (the file needs to be in this directory):\t");
+   scanf("%s",filename);
+
+   // Check that files exists in the current directory
+   FILE * fin = NULL;
+   fin = fopen(filename,"r");
+   if(fin == NULL)
+   {
+       printf("The file you typed doesn't exist or it's not in your current directory\n");
+       char * command = "ls";
+       char * arguments[] = {"ls", (char *) NULL};
+       printf("These are the files that are in your current directory:\n");
+       execvp(command,arguments);
+       perror("File error");
+   }
+   fclose(fin);
+
+   // If the user chooses to decode, the file name must typed must be called 'encoded_{file_name}'
+   if(strstr(filename,"encoded_") == NULL && strncmp(decodeEncodeOption,"d",MAX_STRING_SIZE) == 0 )
+   {
+       printf("You chose to decode and the file given ('%s') is not encoded\n",filename);
+       exit(EXIT_SUCCESS);
+   }
+
+   printf("Type the key:\t");
+   scanf("%s",key);
 }
 

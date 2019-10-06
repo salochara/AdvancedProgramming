@@ -21,4 +21,5 @@ char * vigenereEntryFunction(char *decodeEncodeOption, char *inputFileName, char
 char * vigenere_algorithm(char *inputFileName, char key[], int option);
 int runProgram();
 
+
 #endif //ADVANCEDPROGRAMMING_VIGENERE_H
