@@ -113,13 +113,8 @@ void communicationLoop(int connection_fd)
 {
     char buffer[BUFFER_SIZE];
     char * string;
-    int guess_counter = 0;
     int chars_read;
-    int limit;
-    int target;
-    int guess;
     player_t playerServerSide;
-
 
 
     // Initialize the random seed
@@ -140,53 +135,68 @@ void communicationLoop(int connection_fd)
 
     printf("YOUR INITIAL BALANCE IS: %d. GOOD LUCK!\n",playerServerSide.balance);
 
-    // Send a reply
-    sprintf(buffer, "READY");
-    send(connection_fd, buffer, strlen(buffer)+1, 0);
-
     while(1)
     {
+        chars_read = receiveMessage(connection_fd,buffer,BUFFER_SIZE);
+        if(chars_read == 0)
+            printf("Didnt get anything!\n");
 
-        chars_read = receiveMessage(connection_fd, buffer, BUFFER_SIZE);
-        if (chars_read <= 0)
-            break;
-        string = strtok(buffer, ":");
-        if (strncmp(string, "GUESS", 6) != 0)
-        {
-            printf("Invalid client. Exiting!\n");
-            return;
-        }
-        // Get the second part, with the limit number
-        string = strtok(NULL, ":");
-        guess = atoi(string);
-        guess_counter++;
-        printf("The client sent me: '%d'\n", guess);
+        string = strtok(buffer,":");
+        string = strtok(NULL,":");
 
-        if (guess == target)
+        printf("The player wants to bet: %d\n",atoi(string));
+        if(playerServerSide.balance < atoi(string))
         {
-            sprintf(buffer, "OK");
-            send(connection_fd, buffer, strlen(buffer)+1, 0);
+            sprintf(buffer,"Not enough money in your balance\n");
+            send(connection_fd,buffer,strlen(buffer)+1,0);
             break;
+        }else{
+            sprintf(buffer,"OK");
+            send(connection_fd,buffer,strlen(buffer)+1,0);
         }
-        else if (guess > target)
+        // Deal player's first card
+        // Get value of card and save it in players balance
+        // Send value to player
+
+        playerServerSide.sum = 0;
+
+        card_t card = newCard();
+        playerServerSide.sum = card.value;
+        sprintf(buffer,"Sum of your cards: %d",playerServerSide.sum);
+        send(connection_fd,buffer,strlen(buffer)+1,0);
+
+        // Read from client if he want to stay or hit
+        chars_read = receiveMessage(connection_fd,buffer,BUFFER_SIZE);
+        // If he wants to hit
+        if(strncmp(buffer,"h",BUFFER_SIZE) == 0)
         {
-            sprintf(buffer, "LOWER");
+            printf("Player wants to: %s\n",buffer);
+            //
+            while(1)
+            {
+                card_t newC = newCard();
+                playerServerSide.sum += newC.value;
+                if(playerServerSide.sum > 21)
+                {
+                    sprintf(buffer,"You lost! Sum of your cards: %d\n",playerServerSide.sum);
+                    send(connection_fd,buffer,strlen(buffer)+1,0);
+                    break;
+                }
+                sprintf(buffer,"Sum of your cards: %d\n",playerServerSide.sum);
+                send(connection_fd,buffer,strlen(buffer)+1,0);
+            }
+
+
+
         }
-        else
-        {
-            sprintf(buffer, "HIGHER");
-        }
-        // Send a reply
-        send(connection_fd, buffer, strlen(buffer)+1, 0);
+
+
+
+
+
+
+
+
     }
 
-    chars_read = receiveMessage(connection_fd, buffer, BUFFER_SIZE);
-    printf("The client sent me: '%s'\n", buffer);
-    if (strncmp(buffer, "BYE", 4) != 0)
-    {
-        printf("Invalid client. Exiting!\n");
-        return;
-    }
-    // Final message to close the connection
-    send(connection_fd, "BYE", 4, 0);
 }

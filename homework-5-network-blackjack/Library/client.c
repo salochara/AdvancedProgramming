@@ -55,10 +55,10 @@ void usage(char * program)
 void communicationLoop(int connection_fd)
 {
     char buffer[BUFFER_SIZE];
-    int chars_read;
     int balance;
-    int guess;
     player_t playerClientSide;
+    int bet;
+    int chars_read;
 
     printf("Welcome to BlackJack!\n");
     // State your initial balance
@@ -71,39 +71,58 @@ void communicationLoop(int connection_fd)
     sprintf(buffer, "BALANCE:%d", playerClientSide.balance);
     send(connection_fd, buffer, strlen(buffer)+1, 0);
 
-
-
-
-    chars_read = receiveMessage(connection_fd, buffer, BUFFER_SIZE);
-    if (strncmp(buffer, "READY", 6) != 0)
-    {
-        printf("Invalid server. Exiting!\n");
-        return;
-    }
     printf("Game ready!\n");
-    card_t card;
     while(1)
     {
-        // Send a request
-        printf("Enter a number: ");
-        scanf("%d", &guess);
-        sprintf(buffer, "GUESS:%d", guess);
-        send(connection_fd, buffer, strlen(buffer)+1, 0);
+        // Get how much the client wants to bet
+        printf("How much do you want to bet?\n");
+        scanf("%d",&bet);
+        // Send the propsed bet to the server
+        sprintf(buffer,"BET: %d",bet);
+        send(connection_fd,buffer,strlen(buffer)+1,0);
 
-        chars_read = receiveMessage(connection_fd, buffer, BUFFER_SIZE);
-        if (chars_read <= 0)
-            break;
-        if (strncmp(buffer, "OK", 3) == 0)
+        // Receive the server's response to the bet proposed
+        chars_read = receiveMessage(connection_fd,buffer,BUFFER_SIZE);
+        // Good to bet
+        if(strncmp(buffer,"OK",3) == 0)
         {
-            printf("You guessed correctly!\n");
+            printf("Dealer response: %s\n",buffer); // Should be OK
+            // Get the first card dealt by the dealer
+            chars_read = receiveMessage(connection_fd,buffer,BUFFER_SIZE);// Receives the value of the first card dealt
+            printf("%s\n",buffer);
+
+            while(1)
+            {
+                // Stay or hit?
+                printf("Stay or hit? (s/h)\n");
+                scanf("%s",buffer);
+                // Send to server s or h
+                send(connection_fd,buffer,strlen(buffer)+1,0);
+
+                // It the user chooses to stay
+                if(strncmp(buffer,"s",BUFFER_SIZE) == 0)
+                {
+                    break;
+                }
+                // Chose to hit
+                chars_read = receiveMessage(connection_fd,buffer,BUFFER_SIZE);
+
+                char * pch;
+                pch = strstr(buffer,"You lost!");
+                if(pch != NULL){
+                    printf("%s",buffer);
+                    break;
+                }
+                printf("%s",buffer);
+
+            }
+        }else{ // Not enough money to bet
+            printf("Dealer response: %s",buffer);
             break;
         }
-        printf("Try again with a %s number\n", buffer);
-        card = newCard();
-        printf("value of new card: %d\n",card.value);
+
+
     }
-    // Close the connection
-    send(connection_fd, "BYE", 4, 0);
-    chars_read = receiveMessage(connection_fd, buffer, BUFFER_SIZE);
-    printf("The server sent me: '%s'\n", buffer);
+
+
 }

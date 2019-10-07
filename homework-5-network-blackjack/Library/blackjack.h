@@ -16,6 +16,7 @@ typedef struct card{
 typedef struct player{
     int sum;
     int balance;
+    int currentBet;
 } player_t;
 
 typedef  struct  dealer{
