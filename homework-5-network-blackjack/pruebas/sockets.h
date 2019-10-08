@@ -1,10 +1,8 @@
 /*
-    Program for a simple chat server
-    Can only connect with one client at a time
-
-    Gilberto Echeverria
-    gilecheverria@yahoo.com
-    23/02/2017
+ Advanced Programming
+ BlackJack Homework - Sockets
+ Salomón Charabati
+ October '19
 */
 
 #ifndef SOCKETS_H

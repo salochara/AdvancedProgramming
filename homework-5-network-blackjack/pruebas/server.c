@@ -1,10 +1,8 @@
 /*
-    Program for a simple chat server
-    Can deal with several clients, by using a fork
-
-    Gilberto Echeverria
-    gilecheverria@yahoo.com
-    03/10/2019
+ Advanced Programming
+ BlackJack Homework - Sockets
+ Salomón Charabati
+ October '19
 */
 
 #include <stdio.h>
@@ -159,11 +157,13 @@ void communicationLoop(int connection_fd)
         chars_read = receiveMessage(connection_fd,buffer,BUFFER_SIZE);
 
 
-        // DEALING CARDS PART // TODO Not working
+        // DEALING CARDS PART
         // First card is sent to client
         playerServerSide.sum = 0;
+        playerServerSide.numberOfAces = 0;
         card_t card = newCard();
         playerServerSide.sum += card.value;
+        printf("New card value: %d\n",card.value);
         sprintf(buffer,"Sum of your hand: %d\n",playerServerSide.sum);
         send(connection_fd,buffer,strlen(buffer)+1,0);
         while(1)
@@ -179,7 +179,14 @@ void communicationLoop(int connection_fd)
                     sprintf(buffer,"Bust. Sum of your hand: %d\n",playerServerSide.sum);
                     send(connection_fd,buffer,strlen(buffer)+1,0);
                     break;
-                }else{
+                }
+                else if(playerServerSide.sum == 21)
+                {
+                    sprintf(buffer,"BLACKJACK!\n");
+                    send(connection_fd,buffer,strlen(buffer)+1,0);
+                    break;
+                }
+                else{
                     sprintf(buffer,"Sum of your hand: %d\n",playerServerSide.sum);
                     send(connection_fd,buffer,strlen(buffer)+1,0);
                 }
@@ -201,13 +208,20 @@ void communicationLoop(int connection_fd)
         }
         printf("Dealer has: %d\n",dealer.sum);
 
-
         // COMPARING RESULTS SUMS OF HANDS OF DEALER AND PLAYER
         // Format of buffer. {player}wins|{player.sum}|{dealer.sum}\t player.balance}
 
         if(playerServerSide.sum > 21){
-            sprintf(buffer,"dealer wins|Player sum: %d|Dealer sum:%d\t Player balance: %d\n",playerServerSide.sum,dealer.sum,playerServerSide.balance);
             playerServerSide.balance  -= currentBet;
+            sprintf(buffer,"BUSTED! Dealer wins|Player sum: %d\t Player balance: %d\n",playerServerSide.sum,playerServerSide.balance);
+        }else if(playerServerSide.sum <= 21 && dealer.sum > 21){
+            playerServerSide.balance += currentBet;
+            sprintf(buffer,"Player wins|Player sum: %d|Dealer sum:%d\t Player balance: %d\n",playerServerSide.sum,dealer.sum,playerServerSide.balance);
+        }
+
+        else if(playerServerSide.sum == 21){
+            playerServerSide.balance  = playerServerSide.balance  + (currentBet * 2);
+            sprintf(buffer,"Player wins with BLACKJACK!\nDealer pays double|Player sum: %d|Dealer sum:%d\t Player balance: %d\n",playerServerSide.sum,dealer.sum,playerServerSide.balance);
         }
         else if(playerServerSide.sum < dealer.sum)
         {
@@ -222,60 +236,4 @@ void communicationLoop(int connection_fd)
 
         send(connection_fd,buffer,strlen(buffer)+1,0);
     }
-
-
-
-    /*while(1)
-    {
-        chars_read = receiveMessage(connection_fd,buffer,BUFFER_SIZE);
-        if(chars_read == 0)
-            printf("Didnt get anything!\n");
-
-        string = strtok(buffer,":");
-        string = strtok(NULL,":");
-
-        printf("The player wants to bet: %d\n",atoi(string));
-        if(playerServerSide.balance < atoi(string))
-        {
-            sprintf(buffer,"Not enough money in your balance\n");
-            send(connection_fd,buffer,strlen(buffer)+1,0);
-            break;
-        }else{
-            sprintf(buffer,"OK");
-            send(connection_fd,buffer,strlen(buffer)+1,0);
-        }
-        // Deal player's first card
-        // Get value of card and save it in players balance
-        // Send value to player
-
-        playerServerSide.sum = 0;
-
-        card_t card = newCard();
-        playerServerSide.sum = card.value;
-        sprintf(buffer,"Sum of your cards: %d",playerServerSide.sum);
-        send(connection_fd,buffer,strlen(buffer)+1,0);
-
-        // Read from client if he want to stay or hit
-        chars_read = receiveMessage(connection_fd,buffer,BUFFER_SIZE);
-        // If he wants to hit
-        if(strncmp(buffer,"h",BUFFER_SIZE) == 0)
-        {
-            printf("Player wants to: %s\n",buffer);
-            //
-            while(1)
-            {
-                card_t newC = newCard();
-                playerServerSide.sum += newC.value;
-                if(playerServerSide.sum > 21)
-                {
-                    sprintf(buffer,"You lost! Sum of your cards: %d\n",playerServerSide.sum);
-                    send(connection_fd,buffer,strlen(buffer)+1,0);
-                    break;
-                }
-                sprintf(buffer,"Sum of your cards: %d\n",playerServerSide.sum);
-                send(connection_fd,buffer,strlen(buffer)+1,0);
-            }
-        }
-    }*/
-
 }

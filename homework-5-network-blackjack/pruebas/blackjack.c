@@ -1,7 +1,9 @@
-//
-// Created by Salomón Charabati on 2019-10-06.
-//
-
+/*
+ Advanced Programming
+ BlackJack Homework - Sockets
+ Salomón Charabati
+ October '19
+*/
 #include "blackjack.h"
 
 
@@ -12,22 +14,14 @@ card_t newCard()
     int randomValue = rand() % 13 + 1;
     int resultingValue = 0;
 
-    switch(randomValue)
-    {
-        case 11:
-            resultingValue = 10;
-            break;
-        case 12:
-            resultingValue = 10;
-            break;
-        case 13:
-            resultingValue = 10;
-            break;
-        default:
-            resultingValue = randomValue;
-            break;
+    if(randomValue>10)
+        resultingValue = 10;
+    else if(randomValue == 1){
+        resultingValue = 11;
     }
-
+    else{
+        resultingValue = randomValue;
+    }
     card_t newCard;
     newCard.value = resultingValue;
 

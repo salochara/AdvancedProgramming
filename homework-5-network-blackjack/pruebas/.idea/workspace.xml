@@ -3,7 +3,6 @@
   <component name="CMakeRunConfigurationManager" shouldGenerate="true" shouldDeleteObsolete="true">
     <generated>
       <config projectName="AdvancedProgramming" targetName="server" />
-      <config projectName="AdvancedProgramming" targetName="test" />
       <config projectName="AdvancedProgramming" targetName="sockets" />
       <config projectName="AdvancedProgramming" targetName="blackjack" />
       <config projectName="AdvancedProgramming" targetName="client" />
@@ -42,12 +41,19 @@
       <change beforePath="$PROJECT_DIR$/../../homework-4-pipes/vigenere.h" beforeDir="false" afterPath="$PROJECT_DIR$/../../homework-4-pipes/vigenere.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../homework-4-pipes/vigenere.o" beforeDir="false" afterPath="$PROJECT_DIR$/../../homework-4-pipes/vigenere.o" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/blackjack.c" beforeDir="false" afterPath="$PROJECT_DIR$/blackjack.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/blackjack.h" beforeDir="false" afterPath="$PROJECT_DIR$/blackjack.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/blackjack.o" beforeDir="false" afterPath="$PROJECT_DIR$/blackjack.o" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/client" beforeDir="false" afterPath="$PROJECT_DIR$/client" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/client.c" beforeDir="false" afterPath="$PROJECT_DIR$/client.c" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/client.o" beforeDir="false" afterPath="$PROJECT_DIR$/client.o" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/server" beforeDir="false" afterPath="$PROJECT_DIR$/server" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/server.c" beforeDir="false" afterPath="$PROJECT_DIR$/server.c" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/server.o" beforeDir="false" afterPath="$PROJECT_DIR$/server.o" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sockets.c" beforeDir="false" afterPath="$PROJECT_DIR$/sockets.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sockets.h" beforeDir="false" afterPath="$PROJECT_DIR$/sockets.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sockets.o" beforeDir="false" afterPath="$PROJECT_DIR$/sockets.o" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../pointers_Structrures.c" beforeDir="false" afterPath="$PROJECT_DIR$/../../pointers_Structrures.c" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -112,17 +118,11 @@
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration name="test" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="AdvancedProgramming" TARGET_NAME="test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="AdvancedProgramming" RUN_TARGET_NAME="test">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-      </method>
-    </configuration>
     <list>
       <item itemvalue="CMake Application.blackjack" />
       <item itemvalue="CMake Application.client" />
       <item itemvalue="CMake Application.server" />
       <item itemvalue="CMake Application.sockets" />
-      <item itemvalue="CMake Application.test" />
     </list>
   </component>
   <component name="SvnConfiguration">
@@ -138,7 +138,7 @@
       <workItem from="1570491876758" duration="7285000" />
       <workItem from="1570540930558" duration="808000" />
       <workItem from="1570542231036" duration="1672000" />
-      <workItem from="1570547706735" duration="3697000" />
+      <workItem from="1570547706735" duration="8438000" />
     </task>
     <servers />
   </component>
