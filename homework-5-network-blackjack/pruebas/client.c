@@ -63,7 +63,7 @@ void communicationLoop(int connection_fd)
     printf("Welcome to BlackJack!\n");
     // INITIAL BALANCE PART
     printf("Enter you initial balance: ");
-    scanf("%d", &balance);
+    scanf("%d",&balance);
     playerClientSide.balance = balance;
     // Handshake
     // Send a request with initial balance
@@ -78,7 +78,7 @@ void communicationLoop(int connection_fd)
     {
         // BETTING PART
         printf("How much do you want to bet?\n");
-        scanf("%d",&bet);
+        scanf(" %d", &bet);
         sprintf(buffer,"BET: %d",bet);
         send(connection_fd,buffer,strlen(buffer)+1,0);  // Send the proposed bet to the server
         // Check for server's response to bet proposed
@@ -87,22 +87,34 @@ void communicationLoop(int connection_fd)
         {
             printf("You don't have enough money for placing that bet!\n");
             break;
+        }else{
+            printf("OKAY, you're betting %d in this hand\n",bet);
         }
-        printf("OKAY, you're betting %d in this hand\n",bet);
+
 
         // DEALING CARDS PART
-        strncpy(buffer,"h",2); // First card is automatically dealt
-        while(1)
+        // First card is automatically dealt
+        //chars_read = receiveMessage(connection_fd,buffer,BUFFER_SIZE);
+        //printf("%s",buffer);
+        // While the player hits
+        /*while(1)
         {
-            if(strncmp(buffer,"h",2) != 0){ // If no hit, loop breaks
-                break;
-            }
-            chars_read = receiveMessage(connection_fd,buffer,BUFFER_SIZE);
-            printf("%s\n",buffer); // Prints sum of hand
-            printf("Hit or stand? (h/s)\n");
-            scanf("%s",buffer);
+            printf("Do you want to hit or stay (h/s)?: \n");
+            scanf(" %c", buffer);
             send(connection_fd,buffer,strlen(buffer)+1,0);
-        }
+
+            chars_read = receiveMessage(connection_fd,buffer,BUFFER_SIZE);
+            if(strncmp(buffer,"s",2) == 0)
+                break;
+
+            printf("%s",buffer);
+        }*/
+
+
+        // RESULTS PART
+        chars_read = receiveMessage(connection_fd,buffer,BUFFER_SIZE);
+        printf("%s",buffer);
+
 
     }
 

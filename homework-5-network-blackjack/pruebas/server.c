@@ -143,33 +143,67 @@ void communicationLoop(int connection_fd)
         string = strtok(buffer,":");
         string = strtok(NULL,":");
         currentBet = atoi(string);
-        printf("The player wants to bet: %d\n",currentBet); // Maybe delete
         if(playerServerSide.balance < currentBet)
         {
             sprintf(buffer,"Not valid");
             send(connection_fd,buffer,strlen(buffer)+1,0);
             break;
-        }
-
-        // DEALING CARDS PART
-        playerServerSide.sum = 0;
-        strncpy(buffer,"h",2);
-        while(1)
-        {
-            if(strncmp(buffer,"h",3) != 0){
-                break;
-            }
-            card_t card = newCard();
-            printf("New card value: %d\n",card.value);
-            playerServerSide.sum += card.value;
-            if(playerServerSide.sum > 21){
-                send(connection_fd,"Above 21",10,0);
-                break;
-            }
-            sprintf(buffer,"Sum of your hand: %d\n",playerServerSide.sum);
+        }else{
+            sprintf(buffer,"OK");
             send(connection_fd,buffer,strlen(buffer)+1,0);
         }
+        printf("The player wants to bet: %d\n",currentBet);
 
+        /*// DEALING CARDS PART // TODO Not working
+        // First card is sent to client
+        playerServerSide.sum = 0;
+        card_t card = newCard();
+        playerServerSide.sum += card.value;
+        sprintf(buffer,"Sum of your hand: %d\n",playerServerSide.sum);
+        send(connection_fd,buffer,strlen(buffer)+1,0);
+        while(1)
+        {
+            chars_read = receiveMessage(connection_fd,buffer,BUFFER_SIZE);
+            if(strncmp(buffer,"h",2) == 0)
+            {
+                card_t card = newCard();
+                printf("New card value: %d\n",card.value);
+                playerServerSide.sum += card.value;
+                sprintf(buffer,"Sum of your hand: %d\n",playerServerSide.sum);
+                send(connection_fd,buffer,strlen(buffer)+1,0);
+            }
+            else{
+                send(connection_fd,"s",strlen(buffer)+1,0);
+                break;
+            }
+        }*/
+
+
+        // DEALER DEALS HIS OWN CARDS
+        player_t dealer;
+        dealer.sum = 0;
+        while(dealer.sum < 17)
+        {
+            card_t card = newCard();
+            dealer.sum += card.value;
+        }
+        printf("Dealer has: %d\n",dealer.sum);
+
+
+        // COMPARING RESULTS SUMS OF HANDS OF DEALER AND PLAYER
+        // Format of buffer. {player}wins|{player.sum}|{dealer.sum}\t player.balance}
+        playerServerSide.sum = 17;
+        if(playerServerSide.sum < dealer.sum)
+        {
+            playerServerSide.balance  -= currentBet;
+            sprintf(buffer,"Dealer wins|Player sum: %d|Dealer sum:%d \t Player balance: %d\n",playerServerSide.sum,dealer.sum,playerServerSide.balance);
+        }else if(playerServerSide.sum > dealer.sum){
+            playerServerSide.balance += currentBet;
+            sprintf(buffer,"Player wins|Player sum: %d|Dealer sum:%d\t Player balance: %d\n",playerServerSide.sum,dealer.sum,playerServerSide.balance);
+        }else if (playerServerSide.sum == dealer.sum){
+            sprintf(buffer,"Push|Player sum: %d|Dealer sum:%d\t Player balance: %d\n",playerServerSide.sum,dealer.sum,playerServerSide.balance);
+        }
+        send(connection_fd,buffer,strlen(buffer)+1,0);
     }
 
 
