@@ -4,7 +4,7 @@ Advanced Programming homework
 Course at ITESM 
 October '19
 
-**To run the program
+**To run the program**
 
 `cd /path_to_directory/`
 
@@ -14,7 +14,7 @@ October '19
 
 `./client localhost {portnumber}`
 
-**Example:
+**Example:**
 
 `cd /Users/salo/Desktop/blackjack`
 
