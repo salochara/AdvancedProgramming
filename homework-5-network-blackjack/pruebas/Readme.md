@@ -6,13 +6,13 @@ October '19
 
 To run the program
 
-`cd /path_to_directory/
+`cd /path_to_directory/`
 
-make
+`make`
 
-./server {portnumber}
+`./server {portnumber}`
 
-./client localhost {portnumber}`
+`./client localhost {portnumber}`
 
 Example:
 `cd /Users/salo/Desktop/blackjack`
