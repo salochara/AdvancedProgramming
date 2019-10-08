@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CMakeRunConfigurationManager" shouldGenerate="true" shouldDeleteObsolete="true">
+    <generated>
+      <config projectName="AdvancedProgramming" targetName="server" />
+      <config projectName="AdvancedProgramming" targetName="test" />
+      <config projectName="AdvancedProgramming" targetName="sockets" />
+      <config projectName="AdvancedProgramming" targetName="blackjack" />
+      <config projectName="AdvancedProgramming" targetName="client" />
+    </generated>
+  </component>
+  <component name="CMakeSettings" AUTO_RELOAD="true">
+    <configurations>
+      <configuration PROFILE_NAME="Debug" CONFIG_NAME="Debug" />
+    </configurations>
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="95f16c74-e4f0-4318-9859-b7527861ac1a" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/$CACHE_FILE$" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/.name" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/pruebas.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Makefile" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/blackjack.c" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/blackjack.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/blackjack.o" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/client" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/client.c" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/client.o" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/server" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/server.c" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/server.o" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sockets.c" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sockets.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sockets.o" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../../CMakeLists.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../DataTypes/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../../DataTypes/CMakeLists.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../Files/fifo.c" beforeDir="false" afterPath="$PROJECT_DIR$/../../Files/fifo.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../Files/test" beforeDir="false" afterPath="$PROJECT_DIR$/../../Files/test" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../Pipes/teacherExamplePipes.c" beforeDir="false" afterPath="$PROJECT_DIR$/../../Pipes/teacherExamplePipes.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../Process/01-process.c" beforeDir="false" afterPath="$PROJECT_DIR$/../../Process/01-process.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../Process/02-ProcessID.c" beforeDir="false" afterPath="$PROJECT_DIR$/../../Process/02-ProcessID.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../Process/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../../Process/CMakeLists.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../Process/exec.c" beforeDir="false" afterPath="$PROJECT_DIR$/../../Process/exec.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../Process/fact" beforeDir="false" afterPath="$PROJECT_DIR$/../../Process/fact" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../Process/factorial.c" beforeDir="false" afterPath="$PROJECT_DIR$/../../Process/factorial.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../Process/shellProgram.c" beforeDir="false" afterPath="$PROJECT_DIR$/../../Process/shellProgram.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../Process/test" beforeDir="false" afterPath="$PROJECT_DIR$/../../Process/test" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../Process/test.c" beforeDir="false" afterPath="$PROJECT_DIR$/../../Process/test.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../Server-Client/client.c" beforeDir="false" afterPath="$PROJECT_DIR$/../../Server-Client/client.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../Server-Client/server" beforeDir="false" afterPath="$PROJECT_DIR$/../../Server-Client/server" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../Server-Client/server.c" beforeDir="false" afterPath="$PROJECT_DIR$/../../Server-Client/server.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../Teacher examples/05_Pointers/06-dynamic_memory.c" beforeDir="false" afterPath="$PROJECT_DIR$/../../Teacher examples/05_Pointers/06-dynamic_memory.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../example.c" beforeDir="false" afterPath="$PROJECT_DIR$/../../example.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../homework-1-arrays/hw.c" beforeDir="false" afterPath="$PROJECT_DIR$/../../homework-1-arrays/hw.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../homework-4-pipes/main" beforeDir="false" afterPath="$PROJECT_DIR$/../../homework-4-pipes/main" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../homework-4-pipes/main.c" beforeDir="false" afterPath="$PROJECT_DIR$/../../homework-4-pipes/main.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../homework-4-pipes/main.o" beforeDir="false" afterPath="$PROJECT_DIR$/../../homework-4-pipes/main.o" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../homework-4-pipes/vigenere.h" beforeDir="false" afterPath="$PROJECT_DIR$/../../homework-4-pipes/vigenere.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../homework-4-pipes/vigenere.o" beforeDir="false" afterPath="$PROJECT_DIR$/../../homework-4-pipes/vigenere.o" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../pointers_Structrures.c" beforeDir="false" afterPath="$PROJECT_DIR$/../../pointers_Structrures.c" afterDir="false" />
+    </list>
+    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ClangdSettings">
+    <option name="formatViaClangd" value="false" />
+  </component>
+  <component name="ExecutionTargetManager" SELECTED_TARGET="CMakeBuildProfile:Debug" />
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="CMakeLists.txt" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../.." />
+  </component>
+  <component name="ProjectId" id="1RtgbIohCi9NnKgwjTXsT8eTZWe" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="PropertiesComponent">
+    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
+    <property name="nodejs_npm_path_reset_for_default_project" value="true" />
+  </component>
+  <component name="RunDashboard">
+    <option name="ruleStates">
+      <list>
+        <RuleState>
+          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
+        </RuleState>
+        <RuleState>
+          <option name="name" value="StatusDashboardGroupingRule" />
+        </RuleState>
+      </list>
+    </option>
+  </component>
+  <component name="RunManager" selected="CMake Application.blackjack">
+    <configuration name="blackjack" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="AdvancedProgramming" TARGET_NAME="blackjack" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="AdvancedProgramming" RUN_TARGET_NAME="blackjack">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="client" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="AdvancedProgramming" TARGET_NAME="client" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="AdvancedProgramming" RUN_TARGET_NAME="client">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="server" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="AdvancedProgramming" TARGET_NAME="server" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="AdvancedProgramming" RUN_TARGET_NAME="server">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="sockets" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="AdvancedProgramming" TARGET_NAME="sockets" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="AdvancedProgramming" RUN_TARGET_NAME="sockets">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="test" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="AdvancedProgramming" TARGET_NAME="test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="AdvancedProgramming" RUN_TARGET_NAME="test">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <list>
+      <item itemvalue="CMake Application.blackjack" />
+      <item itemvalue="CMake Application.client" />
+      <item itemvalue="CMake Application.server" />
+      <item itemvalue="CMake Application.sockets" />
+      <item itemvalue="CMake Application.test" />
+    </list>
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="95f16c74-e4f0-4318-9859-b7527861ac1a" name="Default Changelist" comment="" />
+      <created>1570491875237</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1570491875237</updated>
+      <workItem from="1570491876758" duration="5681000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="1" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+</project>
