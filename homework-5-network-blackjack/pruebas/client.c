@@ -71,7 +71,7 @@ void communicationLoop(int connection_fd)
     send(connection_fd, buffer, strlen(buffer)+1, 0);
 
     printf("GAME READY! GOOD LUCK\n");
-
+    chars_read = receiveMessage(connection_fd,buffer,BUFFER_SIZE);
 
 
     while(1)
@@ -90,26 +90,27 @@ void communicationLoop(int connection_fd)
         }else{
             printf("OKAY, you're betting %d in this hand\n",bet);
         }
-
+        send(connection_fd,"OKAY",5,0);
 
         // DEALING CARDS PART
         // First card is automatically dealt
-        //chars_read = receiveMessage(connection_fd,buffer,BUFFER_SIZE);
-        //printf("%s",buffer);
+        chars_read = receiveMessage(connection_fd,buffer,BUFFER_SIZE);
+        printf("%s",buffer);
         // While the player hits
-        /*while(1)
+        while(1)
         {
             printf("Do you want to hit or stay (h/s)?: \n");
-            scanf(" %c", buffer);
+            scanf(" %s", buffer);
             send(connection_fd,buffer,strlen(buffer)+1,0);
 
             chars_read = receiveMessage(connection_fd,buffer,BUFFER_SIZE);
-            if(strncmp(buffer,"s",2) == 0)
+            if(strncmp(buffer,"s",2) == 0 ||(strncmp(buffer,"Bust.",5) == 0 ))
                 break;
 
             printf("%s",buffer);
-        }*/
+        }
 
+        send(connection_fd,"OKAY",5,0);
 
         // RESULTS PART
         chars_read = receiveMessage(connection_fd,buffer,BUFFER_SIZE);
