@@ -113,6 +113,7 @@ void communicationLoop(int connection_fd)
     char * string;
     int chars_read;
     int currentBet;
+    int numberOfAces = 0;
     player_t playerServerSide;
 
 
@@ -160,8 +161,8 @@ void communicationLoop(int connection_fd)
         // DEALING CARDS PART
         // First card is sent to client
         playerServerSide.sum = 0;
-        playerServerSide.numberOfAces = 0;
         card_t card = newCard();
+        numberOfAces += sumAces(card);
         playerServerSide.sum += card.value;
         printf("New card value: %d\n",card.value);
         sprintf(buffer,"Sum of your hand: %d\n",playerServerSide.sum);
@@ -172,6 +173,7 @@ void communicationLoop(int connection_fd)
             if(strncmp(buffer,"h",2) == 0)
             {
                 card_t card = newCard();
+                numberOfAces += sumAces(card);
                 printf("New card value: %d\n",card.value);
                 playerServerSide.sum += card.value;
                 if(playerServerSide.sum > 21)
@@ -203,37 +205,54 @@ void communicationLoop(int connection_fd)
         dealer.sum = 0;
         while(dealer.sum < 17)
         {
-            card_t card = newCard();
-            dealer.sum += card.value;
+            card_t newC = newCard();
+            dealer.sum += newC.value;
         }
         printf("Dealer has: %d\n",dealer.sum);
 
         // COMPARING RESULTS SUMS OF HANDS OF DEALER AND PLAYER
         // Format of buffer. {player}wins|{player.sum}|{dealer.sum}\t player.balance}
 
-        if(playerServerSide.sum > 21){
-            playerServerSide.balance  -= currentBet;
-            sprintf(buffer,"BUSTED! Dealer wins|Player sum: %d\t Player balance: %d\n",playerServerSide.sum,playerServerSide.balance);
+        // Player has BLACKJACK
+        if(playerServerSide.sum == 21){
+            playerServerSide.balance  = playerServerSide.balance  + (currentBet * 2);
+            sprintf(buffer,"Player wins with BLACKJACK!\nDealer pays double|Player sum: %d|Dealer sum:%d\t Player balance: %d\n",playerServerSide.sum,dealer.sum,playerServerSide.balance);
+        }
+        // Player > 21
+        else if(playerServerSide.sum > 21){
+            if(numberOfAces > 0){ // Special case for ACES. If player is above 21, aces now count 1
+                int beforeAdjustingAces = playerServerSide.sum;
+                playerServerSide.sum = playerServerSide.sum - (numberOfAces * 10);
+                if((playerServerSide.sum <= 21 && playerServerSide.sum > dealer.sum) || dealer.sum > 21){
+                    playerServerSide.balance += currentBet;
+                    sprintf(buffer,"Player wins. Aces now count 1. You had %d and now you have %d |Dealer sum:%d\t Player balance: %d\n",beforeAdjustingAces, playerServerSide.sum,dealer.sum,playerServerSide.balance);
+                }else{
+                    playerServerSide.balance  -= currentBet;
+                    sprintf(buffer,"BUSTED! Dealer wins|Player sum: %d\t Player balance: %d\n",playerServerSide.sum,playerServerSide.balance);
+                }
+            }else{
+                playerServerSide.balance  -= currentBet;
+                sprintf(buffer,"BUSTED! Dealer wins|Player sum: %d\t  Player balance: %d\n",playerServerSide.sum,playerServerSide.balance);
+            }
+        // Player <= 21 and Dealer > 21
         }else if(playerServerSide.sum <= 21 && dealer.sum > 21){
             playerServerSide.balance += currentBet;
             sprintf(buffer,"Player wins|Player sum: %d|Dealer sum:%d\t Player balance: %d\n",playerServerSide.sum,dealer.sum,playerServerSide.balance);
         }
-
-        else if(playerServerSide.sum == 21){
-            playerServerSide.balance  = playerServerSide.balance  + (currentBet * 2);
-            sprintf(buffer,"Player wins with BLACKJACK!\nDealer pays double|Player sum: %d|Dealer sum:%d\t Player balance: %d\n",playerServerSide.sum,dealer.sum,playerServerSide.balance);
-        }
+        // Player < Dealer
         else if(playerServerSide.sum < dealer.sum)
         {
             playerServerSide.balance  -= currentBet;
             sprintf(buffer,"Dealer wins|Player sum: %d|Dealer sum:%d \t Player balance: %d\n",playerServerSide.sum,dealer.sum,playerServerSide.balance);
+        // Player > Dealer
         }else if(playerServerSide.sum > dealer.sum){
             playerServerSide.balance += currentBet;
             sprintf(buffer,"Player wins|Player sum: %d|Dealer sum:%d\t Player balance: %d\n",playerServerSide.sum,dealer.sum,playerServerSide.balance);
+        // Player = Dealer. Push.
         }else if (playerServerSide.sum == dealer.sum){
             sprintf(buffer,"Push|Player sum: %d|Dealer sum:%d\t Player balance: %d\n",playerServerSide.sum,dealer.sum,playerServerSide.balance);
         }
-
+        numberOfAces = 0; // Restart number of aces for next bet
         send(connection_fd,buffer,strlen(buffer)+1,0);
     }
 }

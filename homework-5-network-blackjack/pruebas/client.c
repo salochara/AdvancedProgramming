@@ -90,10 +90,11 @@ void communicationLoop(int connection_fd)
         send(connection_fd,"OKAY",5,0);
 
         // DEALING CARDS PART
-        // First card is automatically dealt
+        // First card is automatically dealt and received here
         chars_read = receiveMessage(connection_fd,buffer,BUFFER_SIZE);
         printf("%s",buffer);
-        // While the player hits
+
+        // While the player hits, is below 21 or has exactly 21
         while(1)
         {
             printf("Do you want to hit or stay (h/s)?: \n");

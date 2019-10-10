@@ -41,7 +41,6 @@
       <change beforePath="$PROJECT_DIR$/../../homework-4-pipes/vigenere.h" beforeDir="false" afterPath="$PROJECT_DIR$/../../homework-4-pipes/vigenere.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../homework-4-pipes/vigenere.o" beforeDir="false" afterPath="$PROJECT_DIR$/../../homework-4-pipes/vigenere.o" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/blackjack.c" beforeDir="false" afterPath="$PROJECT_DIR$/blackjack.c" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/blackjack.h" beforeDir="false" afterPath="$PROJECT_DIR$/blackjack.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/blackjack.o" beforeDir="false" afterPath="$PROJECT_DIR$/blackjack.o" afterDir="false" />
@@ -51,9 +50,6 @@
       <change beforePath="$PROJECT_DIR$/server" beforeDir="false" afterPath="$PROJECT_DIR$/server" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/server.c" beforeDir="false" afterPath="$PROJECT_DIR$/server.c" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/server.o" beforeDir="false" afterPath="$PROJECT_DIR$/server.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sockets.c" beforeDir="false" afterPath="$PROJECT_DIR$/sockets.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sockets.h" beforeDir="false" afterPath="$PROJECT_DIR$/sockets.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sockets.o" beforeDir="false" afterPath="$PROJECT_DIR$/sockets.o" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../pointers_Structrures.c" beforeDir="false" afterPath="$PROJECT_DIR$/../../pointers_Structrures.c" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -138,7 +134,7 @@
       <workItem from="1570491876758" duration="7285000" />
       <workItem from="1570540930558" duration="808000" />
       <workItem from="1570542231036" duration="1672000" />
-      <workItem from="1570547706735" duration="8928000" />
+      <workItem from="1570547706735" duration="12315000" />
     </task>
     <servers />
   </component>
