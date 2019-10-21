@@ -41,7 +41,7 @@ int main(int argc, char * argv[])
     waitLoop(seconds);
 
     // Sigaction is more reliable than signal()
-    //sigaction(SIGINT,&old_action,NULL);
+    sigaction(SIGINT,&old_action,NULL);
 
     //signal(SIGINT, SIG_DFL); // set the default operation for signal SIGINT. i.e., now you can kill process with ctrl+c
 
