@@ -3,14 +3,12 @@
 ### Variables for this project ###
 # These should be the only ones that need to be modified
 # The files that must be compiled, with a .o extension
-OBJECTS = get_pi.o fatal_error.o sockets.o
+OBJECTS = fatal_error.o sockets.o
 # The header files
-DEPENDS = get_pi.h fatal_error.h sockets.h
+DEPENDS = fatal_error.h sockets.h
 # The executable programs to be created
 CLIENT = pi_client
 SERVER = pi_server
-TEST = test_pi
-
 # Name of the project / zipfile
 MAIN = network_pi
 

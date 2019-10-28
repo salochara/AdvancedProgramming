@@ -11,23 +11,27 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <poll.h>
 #include <string.h>
 #include <unistd.h>
 // Sockets libraries
 #include <netdb.h>
 #include <arpa/inet.h>
 // Custom libraries
-#include "get_pi.h"
 #include "sockets.h"
 #include "fatal_error.h"
 
 #define BUFFER_SIZE 1024
 #define MAX_QUEUE 5
+#define TIMEOUT_POLL 300
 
 ///// FUNCTION DECLARATIONS
 void usage(char * program);
 void waitForConnections(int server_fd);
 void attendRequest(int client_fd);
+char * computePI(unsigned long int iterations, int client_fd);
+
+int interrupted = 0;
 
 ///// MAIN FUNCTION
 int main(int argc, char * argv[])
@@ -77,52 +81,120 @@ void waitForConnections(int server_fd)
     socklen_t client_address_size;
     char client_presentation[INET_ADDRSTRLEN];
     int client_fd;
+    int poll_response;
     pid_t new_pid;
 
-    // Get the size of the structure to store client information
-    client_address_size = sizeof client_address;
+    // Polling
+    struct pollfd poll_fd[1]; // Array of pollfd structures
+    poll_fd[0].fd = server_fd;
+    poll_fd[0].events = POLL_IN;
 
     while (1)
     {
-        // ACCEPT
-        // Wait for a client connection
-        client_fd = accept(server_fd, (struct sockaddr *)&client_address, &client_address_size);
-        if (client_fd == -1)
+        // Get the size of the structure to store client information
+        client_address_size = sizeof client_address;
+        while(1)
         {
-            fatalError("accept");
+            poll_response = poll(poll_fd,1,TIMEOUT_POLL);
+            if(poll_response == 0)
+                continue;
+            else if(poll_response == -1)
+            {
+                perror("poll");
+                break;
+            }
+            else{
+                // ACCEPT
+                // Wait for a client connection
+                if(poll_fd[0].revents && POLL_IN)
+                {
+                    client_fd = accept(server_fd, (struct sockaddr *)&client_address, &client_address_size);
+                    if (client_fd == -1)
+                        fatalError("accept");
+                    // Get the data from the client
+                    inet_ntop(client_address.sin_family, &client_address.sin_addr, client_presentation, sizeof client_presentation);
+                    printf("Received incomming connection from %s on port %d\n", client_presentation, client_address.sin_port);
+                    break; // exits the loop after a client connects
+                }
+            }
         }
-         
-        // Get the data from the client
-        inet_ntop(client_address.sin_family, &client_address.sin_addr, client_presentation, sizeof client_presentation);
-        printf("Received incomming connection from %s on port %d\n", client_presentation, client_address.sin_port);
-
-        // FORK
-        // Create a new child process to deal with the client
-        new_pid = fork();
-        // Parent
-        if (new_pid > 0)
-        {
-            // Close the new socket
-            close(client_fd);
-        }
-        else if (new_pid == 0)
-        {
-            // Close the main server socket to avoid interfering with the parent
-            close(server_fd);
-            printf("Child process %d dealing with client\n", getpid());
-            // Deal with the client
-            attendRequest(client_fd);
-            // Close the new socket
-            close(client_fd);
-            // Terminate the child process
-            exit(EXIT_SUCCESS);
-        }
-        else
-        {
-            fatalError("fork");
-        }
-
+       if(!interrupted)
+       {
+           // FORK
+           // Create a new child process to deal with the client
+           new_pid = fork();
+           // Parent
+           if (new_pid > 0)
+           {
+               // Close the new socket
+               close(client_fd);
+           }
+           else if (new_pid == 0)
+           {
+               // Close the main server socket to avoid interfering with the parent
+               close(server_fd);
+               printf("Child process %d dealing with client\n", getpid());
+               // Deal with the client
+               attendRequest(client_fd);
+               // Close the new socket
+               close(client_fd);
+               // Terminate the child process
+               exit(EXIT_SUCCESS);
+           }
+           else
+               fatalError("fork");
+       }
     }
+}
+
+// Function for computing PI. Polling is needed in this function, because the client might send
+// a SIGINT while the server is computing PI
+// Approximation to pi using the following formula :
+// pi = 4 - (4/3) + (4/5) - (4/7) + (4/9) - ...
+char * computePI(unsigned long int iterations,int client_fd)
+{
+    double result = 4;
+    int sign = -1;
+    unsigned long int divisor = 3;
+    unsigned long int counter = 0;
+    int poll_response;
+    char buffer[BUFFER_SIZE];
+    char resultInString[BUFFER_SIZE];
+
+    // Polling
+    struct pollfd poll_fd[1]; // Array of pollfd structures
+    poll_fd[0].fd = client_fd;
+    poll_fd[0].events = POLL_IN;
+
+    for (counter = 0; counter<iterations; counter++)
+    {
+        if(!interrupted) // While the server is not interrupted
+        {
+            poll_response = poll(poll_fd,1,TIMEOUT_POLL);
+
+            if(poll_response == 0)
+            {
+                result += sign * (4.0/divisor);
+                sign *= -1;
+                divisor += 2;
+            }else if(poll_response == -1){
+                perror("poll");
+                break;
+            }else{
+                if (poll_fd[0].revents & POLLIN) // If there's an event, receive the message sent by the client and break
+                {
+                    recvString(client_fd, buffer, BUFFER_SIZE);
+                    break;
+                }
+            }
+        }else{
+            break;
+        }
+    }
+
+    // Need to send the iteration of pi and the result up to that iteration, rather send it as a string
+    sprintf(resultInString, "%.30lf||%f",result,iterations);
+    return resultInString;
 }
 
 /*
@@ -132,7 +204,7 @@ void attendRequest(int client_fd)
 {
     char buffer[BUFFER_SIZE];
     unsigned long int iterations;
-    double result;
+    char * result;
 
     // RECV
     // Receive the request
@@ -142,7 +214,8 @@ void attendRequest(int client_fd)
     printf(" > Got request from client with iterations=%lu\n", iterations);
 
     // Compute the value of PI
-    result = computePI(iterations);
+    result = computePI(iterations,client_fd);
+    printf("%s\n",result);
 
     printf(" > Sending PI=%.20lf\n", result);
 
@@ -152,3 +225,5 @@ void attendRequest(int client_fd)
     // Send the response
     sendString(client_fd, buffer);
 }
+
+
