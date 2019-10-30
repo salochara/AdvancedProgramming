@@ -1,12 +1,8 @@
 /*
-    Server program to compute the value of PI
-    This program calls the library function 'get_pi'
-    It will create child processes to attend requests
-    It receives connections using sockets
+  PI Server - Assignment #6
+  Advanced Programming
 
-    Gilberto Echeverria
-    gilecheverria@yahoo.com
-    21/10/2018
+  Salomón Charabati
 */
 
 #include <stdio.h>
@@ -17,19 +13,22 @@
 // Sockets libraries
 #include <netdb.h>
 #include <arpa/inet.h>
+#include <signal.h>
 // Custom libraries
 #include "sockets.h"
 #include "fatal_error.h"
 
 #define BUFFER_SIZE 1024
 #define MAX_QUEUE 5
-#define TIMEOUT_POLL 300
+#define TIMEOUT_POLL 50
 
 ///// FUNCTION DECLARATIONS
 void usage(char * program);
 void waitForConnections(int server_fd);
 void attendRequest(int client_fd);
 char * computePI(unsigned long int iterations, int client_fd);
+void setupHandlers();
+void callOnInterrupt(int signal);
 
 int interrupted = 0;
 
@@ -45,6 +44,9 @@ int main(int argc, char * argv[])
     {
         usage(argv[0]);
     }
+
+    // Set up handlers. Whenever the signal SIG_INT is sent, it will call the callOnInterrupt() function.
+    setupHandlers();
 
 	// Show the IPs assigned to this computer
 	printLocalIPs();
@@ -71,6 +73,17 @@ void usage(char * program)
     exit(EXIT_FAILURE);
 }
 
+void callOnInterrupt(int signal)
+{
+    interrupted = 1;
+}
+
+void setupHandlers()
+{
+    struct sigaction new_action;
+    new_action.sa_handler = callOnInterrupt;
+    sigaction(SIGINT, &new_action, NULL);
+}
 
 /*
     Main loop to wait for incomming connections
@@ -89,7 +102,7 @@ void waitForConnections(int server_fd)
     poll_fd[0].fd = server_fd;
     poll_fd[0].events = POLL_IN;
 
-    while (1)
+    while (!interrupted)
     {
         // Get the size of the structure to store client information
         client_address_size = sizeof client_address;
@@ -113,7 +126,7 @@ void waitForConnections(int server_fd)
                         fatalError("accept");
                     // Get the data from the client
                     inet_ntop(client_address.sin_family, &client_address.sin_addr, client_presentation, sizeof client_presentation);
-                    printf("Received incomming connection from %s on port %d\n", client_presentation, client_address.sin_port);
+                    printf("Received incoming connection from %s on port %d\n", client_presentation, client_address.sin_port);
                     break; // exits the loop after a client connects
                 }
             }
@@ -162,7 +175,7 @@ char * computePI(unsigned long int iterations,int client_fd)
     char resultInString[BUFFER_SIZE];
 
     // Polling
-    struct pollfd poll_fd[1]; // Array of pollfd structures
+    struct pollfd poll_fd[1];
     poll_fd[0].fd = client_fd;
     poll_fd[0].events = POLL_IN;
 
@@ -187,13 +200,12 @@ char * computePI(unsigned long int iterations,int client_fd)
                     break;
                 }
             }
-        }else{
+        }else
             break;
-        }
     }
 
     // Need to send the iteration of pi and the result up to that iteration, rather send it as a string
-    sprintf(resultInString, "%.30lf||%f",result,iterations);
+    sprintf(resultInString, "%.20lf||%lu",result,iterations);
     return resultInString;
 }
 
@@ -203,24 +215,33 @@ char * computePI(unsigned long int iterations,int client_fd)
 void attendRequest(int client_fd)
 {
     char buffer[BUFFER_SIZE];
-    unsigned long int iterations;
-    char * result;
+    unsigned long int iterations_requested = 0;
+    unsigned long int iterations_done = 0;
+    char * result_in_string;
+    double result_in_double = 0;
+
 
     // RECV
     // Receive the request
     recvString(client_fd, buffer, BUFFER_SIZE);
-    sscanf(buffer, "%lu", &iterations);
+    sscanf(buffer, "%lu", &iterations_requested);
 
-    printf(" > Got request from client with iterations=%lu\n", iterations);
+
+    printf(" > Got request from client with iterations=%lu\n", iterations_requested);
 
     // Compute the value of PI
-    result = computePI(iterations,client_fd);
-    printf("%s\n",result);
+    result_in_string = computePI(iterations_requested, client_fd);
+    printf("%s\n",result_in_string);
+    // Divide the string result in corresponding data types
+    sscanf(result_in_string, "%lf||%lu", &result_in_double,&iterations_done);
 
-    printf(" > Sending PI=%.20lf\n", result);
+    if(iterations_done < iterations_requested)
+        printf("The client disconnected before the server completed computing the value of PI\n");
+
+    printf("> Sending PI=%.20lf with %lu iterations \n", result_in_double, iterations_done);
 
     // Prepare the response to the client
-    sprintf(buffer, "%.20lf", result);
+    sprintf(buffer, "%s", result_in_string);
     // SEND
     // Send the response
     sendString(client_fd, buffer);
