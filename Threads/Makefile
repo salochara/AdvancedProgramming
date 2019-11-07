@@ -7,7 +7,7 @@
 # The header files
 #DEPENDS =
 # The executable programs to be created
-PROGRAMS = 01-threads 02-multipleThreads
+PROGRAMS = 01-threads 02-multipleThreads 03-multipleThreads 04-threadsStruct
 
 ### Variables for the compilation rules ###
 # These should work for most projects, but can be modified when necessary
