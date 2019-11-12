@@ -1,10 +1,8 @@
 /*
-    Program for a simple chat server
-    Can deal with several clients, by using a fork
-
-    Gilberto Echeverria
-    gilecheverria@yahoo.com
-    03/10/2019
+ Advanced Programming
+ BlackJack Homework - Sockets
+ Salomón Charabati
+ October '19
 */
 
 #include <stdio.h>
@@ -114,89 +112,147 @@ void communicationLoop(int connection_fd)
     char buffer[BUFFER_SIZE];
     char * string;
     int chars_read;
+    int currentBet;
+    int numberOfAces = 0;
     player_t playerServerSide;
 
 
     // Initialize the random seed
     srand(time(NULL));
 
+    // INITIAL BALANCE PART
     // Handshake
     chars_read = receiveMessage(connection_fd, buffer, BUFFER_SIZE);
     // Get the first part
     string = strtok(buffer, ":");
-    if (strncmp(string, "BALANCE", 8) != 0)
-    {
-        printf("Invalid client. Exiting!\n");
-        return;
-    }
+    if (strncmp(string, "BALANCE", 8) != 0){printf("Invalid client. Exiting!\n");return;}
     // Get the initial balance of the player
     string = strtok(NULL, ":");
     playerServerSide.balance = atoi(string);
-
     printf("YOUR INITIAL BALANCE IS: %d. GOOD LUCK!\n",playerServerSide.balance);
+    sprintf(buffer,"YOUR INITIAL BALANCE IS: %d. GOOD LUCK!\n",playerServerSide.balance);
+    send(connection_fd, buffer, strlen(buffer)+1, 0);
+
+
+
 
     while(1)
     {
+        // BETTING PART
         chars_read = receiveMessage(connection_fd,buffer,BUFFER_SIZE);
-        if(chars_read == 0)
-            printf("Didnt get anything!\n");
-
+        // Get the amount from the string sent
         string = strtok(buffer,":");
         string = strtok(NULL,":");
-
-        printf("The player wants to bet: %d\n",atoi(string));
-        if(playerServerSide.balance < atoi(string))
+        currentBet = atoi(string);
+        if(playerServerSide.balance < currentBet)
         {
-            sprintf(buffer,"Not enough money in your balance\n");
+            sprintf(buffer,"Not valid");
             send(connection_fd,buffer,strlen(buffer)+1,0);
             break;
         }else{
             sprintf(buffer,"OK");
             send(connection_fd,buffer,strlen(buffer)+1,0);
         }
-        // Deal player's first card
-        // Get value of card and save it in players balance
-        // Send value to player
+        printf("The player wants to bet: %d\n",currentBet);
 
-        playerServerSide.sum = 0;
-
-        card_t card = newCard();
-        playerServerSide.sum = card.value;
-        sprintf(buffer,"Sum of your cards: %d",playerServerSide.sum);
-        send(connection_fd,buffer,strlen(buffer)+1,0);
-
-        // Read from client if he want to stay or hit
         chars_read = receiveMessage(connection_fd,buffer,BUFFER_SIZE);
-        // If he wants to hit
-        if(strncmp(buffer,"h",BUFFER_SIZE) == 0)
+
+
+        // DEALING CARDS PART
+        // First card is sent to client
+        playerServerSide.sum = 0;
+        card_t card = newCard();
+        numberOfAces += sumAces(card);
+        playerServerSide.sum += card.value;
+        printf("New card value: %d\n",card.value);
+        sprintf(buffer,"Sum of your hand: %d\n",playerServerSide.sum);
+        send(connection_fd,buffer,strlen(buffer)+1,0);
+        while(1)
         {
-            printf("Player wants to: %s\n",buffer);
-            //
-            while(1)
+            chars_read = receiveMessage(connection_fd,buffer,BUFFER_SIZE);
+            if(strncmp(buffer,"h",2) == 0)
             {
-                card_t newC = newCard();
-                playerServerSide.sum += newC.value;
+                card_t card = newCard();
+                numberOfAces += sumAces(card);
+                printf("New card value: %d\n",card.value);
+                playerServerSide.sum += card.value;
                 if(playerServerSide.sum > 21)
                 {
-                    sprintf(buffer,"You lost! Sum of your cards: %d\n",playerServerSide.sum);
+                    sprintf(buffer,"Bust. Sum of your hand: %d\n",playerServerSide.sum);
                     send(connection_fd,buffer,strlen(buffer)+1,0);
                     break;
                 }
-                sprintf(buffer,"Sum of your cards: %d\n",playerServerSide.sum);
-                send(connection_fd,buffer,strlen(buffer)+1,0);
+                else if(playerServerSide.sum == 21)
+                {
+                    sprintf(buffer,"BLACKJACK!\n");
+                    send(connection_fd,buffer,strlen(buffer)+1,0);
+                    break;
+                }
+                else{
+                    sprintf(buffer,"Sum of your hand: %d\n",playerServerSide.sum);
+                    send(connection_fd,buffer,strlen(buffer)+1,0);
+                }
             }
-
-
-
+            else{
+                send(connection_fd,"s",strlen(buffer)+1,0);
+                break;
+            }
         }
+        chars_read = receiveMessage(connection_fd,buffer,BUFFER_SIZE);
 
+        // DEALER DEALS HIS OWN CARDS
+        player_t dealer;
+        dealer.sum = 0;
+        while(dealer.sum < 17)
+        {
+            card_t newC = newCard();
+            dealer.sum += newC.value;
+        }
+        printf("Dealer has: %d\n",dealer.sum);
 
+        // COMPARING RESULTS SUMS OF HANDS OF DEALER AND PLAYER
+        // Format of buffer. {player}wins|{player.sum}|{dealer.sum}\t player.balance}
 
-
-
-
-
-
+        // Player has BLACKJACK
+        if(playerServerSide.sum == 21){
+            playerServerSide.balance  = playerServerSide.balance  + (currentBet * 2);
+            sprintf(buffer,"Player wins with BLACKJACK!\nDealer pays double|Player sum: %d|Dealer sum:%d\t Player balance: %d\n",playerServerSide.sum,dealer.sum,playerServerSide.balance);
+        }
+        // Player > 21
+        else if(playerServerSide.sum > 21){
+            if(numberOfAces > 0){ // Special case for ACES. If player is above 21, aces now count 1
+                int beforeAdjustingAces = playerServerSide.sum;
+                playerServerSide.sum = playerServerSide.sum - (numberOfAces * 10);
+                if((playerServerSide.sum <= 21 && playerServerSide.sum > dealer.sum) || dealer.sum > 21){
+                    playerServerSide.balance += currentBet;
+                    sprintf(buffer,"Player wins. Aces now count 1. You had %d and now you have %d |Dealer sum:%d\t Player balance: %d\n",beforeAdjustingAces, playerServerSide.sum,dealer.sum,playerServerSide.balance);
+                }else{
+                    playerServerSide.balance  -= currentBet;
+                    sprintf(buffer,"BUSTED! Dealer wins|Player sum: %d\t Player balance: %d\n",playerServerSide.sum,playerServerSide.balance);
+                }
+            }else{
+                playerServerSide.balance  -= currentBet;
+                sprintf(buffer,"BUSTED! Dealer wins|Player sum: %d\t  Player balance: %d\n",playerServerSide.sum,playerServerSide.balance);
+            }
+        // Player <= 21 and Dealer > 21
+        }else if(playerServerSide.sum <= 21 && dealer.sum > 21){
+            playerServerSide.balance += currentBet;
+            sprintf(buffer,"Player wins|Player sum: %d|Dealer sum:%d\t Player balance: %d\n",playerServerSide.sum,dealer.sum,playerServerSide.balance);
+        }
+        // Player < Dealer
+        else if(playerServerSide.sum < dealer.sum)
+        {
+            playerServerSide.balance  -= currentBet;
+            sprintf(buffer,"Dealer wins|Player sum: %d|Dealer sum:%d \t Player balance: %d\n",playerServerSide.sum,dealer.sum,playerServerSide.balance);
+        // Player > Dealer
+        }else if(playerServerSide.sum > dealer.sum){
+            playerServerSide.balance += currentBet;
+            sprintf(buffer,"Player wins|Player sum: %d|Dealer sum:%d\t Player balance: %d\n",playerServerSide.sum,dealer.sum,playerServerSide.balance);
+        // Player = Dealer. Push.
+        }else if (playerServerSide.sum == dealer.sum){
+            sprintf(buffer,"Push|Player sum: %d|Dealer sum:%d\t Player balance: %d\n",playerServerSide.sum,dealer.sum,playerServerSide.balance);
+        }
+        numberOfAces = 0; // Restart number of aces for next bet
+        send(connection_fd,buffer,strlen(buffer)+1,0);
     }
-
 }
