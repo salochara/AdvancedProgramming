@@ -150,7 +150,7 @@ int getOptionInputs(int option, int * account_to, int * account_from, float * am
         case 'w':
             printf("Enter source account: ");
             scanf("%d", account_from);
-            printf("Enter the amount to deposit: ");
+            printf("Enter the amount to withdraw: ");
             scanf("%f", amount);
             *operation = WITHDRAW;
             break;
