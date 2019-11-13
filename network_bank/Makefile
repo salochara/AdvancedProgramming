@@ -10,7 +10,7 @@ DEPENDS = fatal_error.h sockets.h bank_codes.h
 CLIENT = bank_client
 #CLIENT = pi_client
 SERVER = bank_server
-TESTER = multi_client
+#TESTER = multi_client
 
 # Name of the project / zipfile
 MAIN = network_bank

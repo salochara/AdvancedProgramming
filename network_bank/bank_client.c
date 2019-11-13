@@ -196,7 +196,7 @@ void displayResult(int status, int account_from, float balance)
             printf("\tInsufficient funds for the transaction selected\n");
             break;
         case NO_ACCOUNT:
-            printf("\tInvalid acount number entered\n");
+            printf("\tInvalid account number entered\n");
             break;
         case BYE:
             printf("\tThanks for connecting to the bank. Good bye!\n");

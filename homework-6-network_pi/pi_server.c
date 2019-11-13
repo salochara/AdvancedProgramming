@@ -205,7 +205,7 @@ char * computePI(unsigned long int iterations,int client_fd)
     }
 
     // Need to send the iteration of pi and the result up to that iteration, rather send it as a string
-    sprintf(resultInString, "%.20lf||%lu",result,iterations);
+    sprintf(resultInString, "%.20lf||%lu",result,counter);
     return resultInString;
 }
 
@@ -231,10 +231,9 @@ void attendRequest(int client_fd)
 
     // Compute the value of PI
     result_in_string = computePI(iterations_requested, client_fd);
-    printf("%s\n",result_in_string);
+    printf("The result of PI with iterations is:%s\n",result_in_string);
     // Divide the string result in corresponding data types
     sscanf(result_in_string, "%lf||%lu", &result_in_double,&iterations_done);
-
     if(iterations_done < iterations_requested)
         printf("The client disconnected before the server completed computing the value of PI\n");
 

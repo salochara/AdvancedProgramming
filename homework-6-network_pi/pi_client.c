@@ -134,7 +134,6 @@ void requestPI(int connection_fd)
 
     // RECV
     // Receive the request
-
     sscanf(buffer, "%lf||%lu", &result, &iterations_done);
 
     if(iterations_done < iterations_requested )
