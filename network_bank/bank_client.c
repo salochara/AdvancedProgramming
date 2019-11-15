@@ -115,7 +115,7 @@ void bankOperations(int connection_fd)
         sscanf(buffer, "%d %f", &status, &balance);
 
         // Print the corresponding message
-        displayResult(status, account_from, balance);
+        (operation == TRANSFER) ? displayResult(status,account_to,balance) : displayResult(status, account_from, balance);
     }
 }
 

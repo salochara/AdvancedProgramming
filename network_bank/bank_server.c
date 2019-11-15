@@ -9,6 +9,11 @@
     08/04/2018  Added initialization of account balances
     27/10/2018  Simplify the function 'processOperation' by validating the account before the switch
     14/03/2019  Added the new operation for transfer from one account to another
+
+    Salomón Charabati
+    salochara@gmail.com
+    Assignment #7. Advanced Programming at ITESM.
+    13/11/2019  Added functionality and implemented a client/server bank using threads
 */
 
 #include <stdio.h>
@@ -34,6 +39,7 @@
 #define MAX_QUEUE 5
 #define TIMEOUT_POLL 50
 #define RESULT_FILE_NAME "result.txt";
+//#define INPUT_FILE_NAME "accounts.txt";
 
 ///// Structure definitions
 
@@ -50,6 +56,8 @@ typedef struct bank_struct {
     int total_transactions;
     // An array of the accounts
     account_t * account_array;
+    // Stores the number of active accounts
+    int active_bank_accounts;
 } bank_t;
 
 // Structure for the mutexes to keep the data consistent
@@ -84,11 +92,11 @@ void waitForConnections(int server_fd, bank_t * bank_data, locks_t * data_locks)
 void * attentionThread(void * arg);
 void closeBank(bank_t * bank_data, locks_t * data_locks);
 int checkValidAccount(int account);
-// My function declarations
 void callOnInterrupt(int signal);
 void writeBankFile(thread_data_t * connection_data);
-char * switchForOperations(thread_data_t * threadData, int operation, int account_from, int account_to, float amount);
-
+char *switchForOperations(locks_t *data_locks, bank_t *bank_data, int account_to, float amount, int operation,
+                          int account_from);
+void lockMutexTransactionsAndSumToTransactions(locks_t *data_locks, bank_t *bank_data);
 ///// MAIN FUNCTION
 int main(int argc, char * argv[])
 {
@@ -144,6 +152,7 @@ void writeBankFile(thread_data_t * connection_data)
 {
     FILE * file_ptr = NULL;
     char * filename = RESULT_FILE_NAME;
+    int numberOfAccounts = 0;
 
     file_ptr = fopen(filename, "w");
     if (!file_ptr)
@@ -152,10 +161,11 @@ void writeBankFile(thread_data_t * connection_data)
     // Set the headers for the result file
     fprintf(file_ptr,"Account_number PIN Balance \n");
     printf("Writing into file...\n");
-    // TODO: How to get the size of the account array  ?
-    //int howManyAccounts = (sizeof(connection_data->bank_data->account_array) / sizeof(connection_data->bank_data->account_array[0]));
 
-    for (int i = 0; i < MAX_ACCOUNTS; ++i)
+    // Retrieve the active accounts number from the bank data structure
+    numberOfAccounts = connection_data->bank_data->active_bank_accounts;
+
+    for (int i = 0; i < numberOfAccounts; ++i)
     {
         printf("%d %d %.2f \n", connection_data->bank_data->account_array[i].id, connection_data->bank_data->account_array[i].pin, connection_data->bank_data->account_array[i].balance);
         fprintf(file_ptr, "%d %d %.2f \n", connection_data->bank_data->account_array[i].id, connection_data->bank_data->account_array[i].pin, connection_data->bank_data->account_array[i].balance);
@@ -177,6 +187,7 @@ void setupHandlers()
 
 void callOnInterrupt(int signal)
 {
+    printf("Gracefully closing the server because of a SIG_INT signal sent\n");
     interrupt_exit = 1;
 }
 
@@ -222,9 +233,7 @@ void readBankFile(bank_t * bank_data)
 
     file_ptr = fopen(filename, "r");
     if (!file_ptr)
-    {
         fatalError("ERROR: fopen");
-    }
 
     // Ignore the first line with the headers
     fgets(buffer, BUFFER_SIZE, file_ptr);
@@ -234,6 +243,9 @@ void readBankFile(bank_t * bank_data)
         sscanf(buffer, "%d %d %f", &bank_data->account_array[account].id, &bank_data->account_array[account].pin, &bank_data->account_array[account].balance); 
         account++;
     }
+
+    // Save the active accounts in the bank_data structure
+    bank_data->active_bank_accounts = account;
     
     fclose(file_ptr);
 }
@@ -284,30 +296,35 @@ void waitForConnections(int server_fd, bank_t * bank_data, locks_t * data_locks)
                     inet_ntop(client_address.sin_family, &client_address.sin_addr, client_presentation, sizeof client_presentation);
                     printf("Received incoming connection from %s on port %d\n", client_presentation, client_address.sin_port);
 
-                    // Prepare the structure to send to the thread // TODO Here or outside the else ?
-                    connection_data = malloc(sizeof(thread_data_t));
-                    connection_data->connection_fd = client_fd;
-                    connection_data->bank_data = bank_data;
-                    connection_data->data_locks = data_locks;
-
-                    // CREATE A THREAD
-                    pthread_create(&new_tid,NULL,attentionThread,connection_data);
+                    break;
                 }
             }
         }
+        // Dynamic allocation for the connection data. A pointer to the thread_data_t struct
+        connection_data = malloc(sizeof(thread_data_t));
+
+        // Prepare structure to send to thread.
+        connection_data->connection_fd = client_fd;
+        connection_data->bank_data = bank_data;
+        connection_data->data_locks = data_locks;
+
+        // CREATE A THREAD
+        printf("Creating a new thread!\n");
+        pthread_create(&new_tid,NULL,attentionThread,connection_data);
+
+
     }
-    if(interrupt_exit)
+    // Only if there were any connections
+    if(connection_data != NULL)
     {
-        printf("Gracefully closing the server because of a SIG_INT signal sent\n");
         // Show the number of total transactions
-        if(connection_data != NULL)
-        {
-            printf("Total transactions done: %d from the user connected with (%s) on port %d\n", connection_data->bank_data->total_transactions, client_presentation, client_address.sin_port);
-            // Store any changes in the file
-            writeBankFile(connection_data);
-        }
-        return; // Exit the void function
+        printf("Total transactions done: %d from the user connected with (%s) on port %d\n", connection_data->bank_data->total_transactions, client_presentation, client_address.sin_port);
+
+        // Store any changes in the file
+        writeBankFile(connection_data);
     }
+
+
 }
 
 /*
@@ -317,134 +334,171 @@ void * attentionThread(void * arg)
 {
     int operation, account_from, account_to;
     float amount;
-
-    printf("STARTING A NEW THREAD\n");
     char buffer[BUFFER_SIZE];
-    char * reply = NULL;
+    response_t response;
+    float balance = 0;
+
 
     // Receive the data for the bank, mutexes and socket file descriptor
     thread_data_t * threadData = (thread_data_t*) arg;
-
+    int connection_fd = threadData->connection_fd;
+    locks_t * data_locks = threadData->data_locks;
+    bank_t * bank_data = threadData->bank_data;
 
     // Loop to listen for messages from the client
     while(1)
     {
         // Receive the request
-        recvString(threadData->connection_fd,buffer,BUFFER_SIZE);
+        recvString(connection_fd,buffer,BUFFER_SIZE);
+
         // Process the request being careful of data consistency
-        //checkForRequest(buffer);
         sscanf(buffer, "%d %d %d %f", &operation,&account_from,&account_to,&amount);
-        printf("op : %d\t",operation); printf("from : %d\t",account_from); printf("to : %d\n",account_to);printf("amount : %f\n",amount);
+        printf("> Operation: %d\t From: %d \t To: %d Amount: %f\n",operation,account_from,account_to,amount);
 
-
-
+        if(operation == EXIT)
+        {
+            printf("Client wants to EXIT, writing to file\n");
+            pthread_mutex_lock(&data_locks->transactions_mutex);
+                printf("Number of transactions done: %d\n",bank_data->total_transactions);
+            pthread_mutex_unlock(&data_locks->transactions_mutex);
+            break;
+        }
 
         // Process the request from the client and prepare a reply
         if(checkValidAccount(account_to) && checkValidAccount(account_from))
         {
-            reply = switchForOperations(threadData,operation,account_from,account_to,amount);
-        }else{
-            sprintf(reply,"%d",NO_ACCOUNT);
+            switch (operation)
+            {
+                case CHECK:
+
+                    pthread_mutex_lock(&data_locks->account_mutex[account_from]);
+
+                        balance = bank_data->account_array[account_from].balance;
+                        response = OK;
+                        printf("BALANCE IS %f", balance);
+                        sprintf(buffer, "%d %f", response, balance);
+
+
+                    pthread_mutex_unlock(&data_locks->account_mutex[account_from]);
+
+                    // Successful transaction. Sum one to the transactions done
+                    lockMutexTransactionsAndSumToTransactions(data_locks, bank_data);
+                    break;
+
+                case DEPOSIT:
+                    pthread_mutex_lock(&data_locks->account_mutex[account_to]);
+
+                        // Sum amount to the balance of the account to deposit.
+                        balance = bank_data->account_array[account_to].balance;
+                        balance += amount;
+
+                        printf("New balance after DEPOSIT operation is %f\n", balance);
+                        sprintf(buffer, "%d %f", OK, balance);
+
+                    pthread_mutex_unlock(&data_locks->account_mutex[account_to]);
+
+                    // Successful transaction. Sum one to the transactions done
+                    lockMutexTransactionsAndSumToTransactions(data_locks, bank_data);
+                    break;
+
+                case WITHDRAW:
+                    pthread_mutex_lock(&data_locks->account_mutex[account_from]);
+
+                        balance = bank_data->account_array[account_from].balance;
+                        // Check for sufficient funds to withdraw
+                        if (balance >= amount) {
+                            balance -= amount;
+                            printf("New balance after WITHDRAW operation is %f\n",balance);
+                            sprintf(buffer, "%d %f", OK, balance);
+
+                            // Successful transaction. Sum one to the transactions done
+                            lockMutexTransactionsAndSumToTransactions(data_locks, bank_data);
+                        } else
+                            sprintf(buffer, "%d %f", INSUFFICIENT,balance);
+
+                    pthread_mutex_unlock(&data_locks->account_mutex[account_from]);
+                    break;
+
+                case TRANSFER:
+                    pthread_mutex_lock(&data_locks->account_mutex[account_from]);
+
+                    // Loop while the mutex is locked by another thread
+                    while (pthread_mutex_trylock(&data_locks->account_mutex[account_to])) {
+                        // While account to mutex is not locked, release account from for other threads and
+                        // immediately after lock it again.
+                        pthread_mutex_unlock(&data_locks->account_mutex[account_from]);
+                        pthread_mutex_lock(&data_locks->account_mutex[account_from]);
+                    }
+
+
+                    // Transfer operation begins
+                    float sourceAccountBalance = bank_data->account_array[account_from].balance;
+                    float destinationAccountBalance = bank_data->account_array[account_to].balance;
+                    // Check for sufficient funds to transfer & amount > 0
+                    if (sourceAccountBalance >= amount && amount > 0)
+                    {
+                        bank_data->account_array[account_from].balance -= amount;
+                        bank_data->account_array[account_to].balance += amount;
+
+                        printf("New balance after TRANSFER operation is %f in account %d\n", destinationAccountBalance,
+                               account_to);
+                        sprintf(buffer, "%d %f", OK, destinationAccountBalance);
+
+                        // Successful transaction. Sum one to the transactions done
+                        lockMutexTransactionsAndSumToTransactions(data_locks, bank_data);
+                    } else
+                        sprintf(buffer, "%d %f", INSUFFICIENT,sourceAccountBalance);
+
+                    pthread_mutex_unlock(&data_locks->account_mutex[account_from]);
+                    pthread_mutex_unlock(&data_locks->account_mutex[account_to]);
+                    break;
+
+                case EXIT:
+                    sprintf(buffer, "%d", BYE);
+                    break;
+
+                default:
+                    sprintf(buffer, "%d", ERROR);
+            }
         }
+        else
+            sprintf(buffer,"%d",NO_ACCOUNT);
+
 
         // Send a reply
-        sendString(threadData->connection_fd,reply,strlen(reply)+1);
+        printf("reply is %s\n",buffer);
+        sendString(connection_fd,buffer,strlen(buffer)+1);
 
         if(interrupt_exit)
             break;
     }
+    close(connection_fd);
     pthread_exit(NULL);
 }
 
 /*
-    Process the request from the client and set a reply
+    Lock the mutex for transactions and add 1 to the total transactions done
 */
 
-char * switchForOperations(thread_data_t * threadData, int operation, int account_from, int account_to, float amount)
+void lockMutexTransactionsAndSumToTransactions(locks_t *data_locks, bank_t *bank_data)
 {
-    float balance;
-    char * reply = malloc(sizeof(char) * BUFFER_SIZE);
-    float * balancePtr = NULL;
-    float * destinationAccountBalance = NULL;
-    float  * sourceAccountBalance = NULL;
-    switch (operation)
-    {
-        // Check operation
-        case CHECK:
-            // Critical section. Mutex to lock. // TODO: Use trylock ?
-            pthread_mutex_lock(&threadData->data_locks->account_mutex[account_from]); // TODO: Transcation mutex.. what does it do ?
-            // TODO: use this ?
-            //pthread_mutex_lock(&threadData->data_locks->transactions_mutex);
-            //pthread_mutex_lock(&threadData->data_locks->account_mutex[account_from]);
+    pthread_mutex_lock(&data_locks->transactions_mutex);
+        bank_data->total_transactions++;
+    pthread_mutex_unlock(&data_locks->transactions_mutex);
+}
 
-            balance = threadData->bank_data->account_array[account_from].balance;
-            sprintf(reply,"%d %f",OK,balance);
+/*
+    Process the request from the client and returns a reply
+*/
 
-            pthread_mutex_unlock(&threadData->data_locks->account_mutex[account_from]);
-            threadData->bank_data->total_transactions++;
-            break;
-            // Deposit into account operation
-        case DEPOSIT:
-            // Critical section
-            pthread_mutex_trylock(&threadData->data_locks->account_mutex[account_to]);
+/*char *switchForOperations(locks_t *data_locks, bank_t *bank_data, int account_to, float amount, int operation,
+                          int account_from)
+{
 
-            // Sum amount to the balance of the account to deposit.
-            balancePtr = &threadData->bank_data->account_array[account_to].balance;
-            *balancePtr += amount;
-            printf("New balance after DEPOSIT operation is %f\n",*balancePtr);
-            sprintf(reply,"%d %f",OK,*balancePtr);
 
-            pthread_mutex_unlock(&threadData->data_locks->account_mutex[account_to]);
-            threadData->bank_data->total_transactions++;
-            break;
-            // Withdraw from account operation
-        case WITHDRAW:
-            pthread_mutex_trylock(&threadData->data_locks->account_mutex[account_from]);
-
-            balancePtr = &threadData->bank_data->account_array[account_from].balance;
-            // Check for sufficient funds to withdraw
-            if(*balancePtr >= amount)
-            {
-                *balancePtr -= amount;
-                printf("New balance after WITHDRAW operation is %f\n",*balancePtr);
-                sprintf(reply,"%d %f",OK,*balancePtr);
-                threadData->bank_data->total_transactions++;
-            }else{
-                sprintf(reply,"%d",INSUFFICIENT);
-            }
-
-            pthread_mutex_unlock(&threadData->data_locks->account_mutex[account_from]);
-            break;
-        case TRANSFER:
-            pthread_mutex_trylock(&threadData->data_locks->account_mutex[account_from]); // TODO: Missing something? last class ex.
-            pthread_mutex_trylock(&threadData->data_locks->account_mutex[account_to]);
-
-            sourceAccountBalance = &threadData->bank_data->account_array[account_from].balance;
-            destinationAccountBalance = &threadData->bank_data->account_array[account_to].balance;
-            // Check for sufficient funds to transfer & amount > 0
-            if(*sourceAccountBalance >= amount && amount > 0)
-            {
-                *sourceAccountBalance -= amount;
-                *destinationAccountBalance += amount;
-                printf("New balance after TRANSFER operation is %f in account %d\n", *destinationAccountBalance, account_to);
-                sprintf(reply,"%d %f",OK, *destinationAccountBalance);
-                threadData->bank_data->total_transactions++;
-            }else{
-                sprintf(reply,"%d",INSUFFICIENT);
-            }
-
-            pthread_mutex_unlock(&threadData->data_locks->account_mutex[account_from]);
-            pthread_mutex_unlock(&threadData->data_locks->account_mutex[account_to]);
-            break;
-        case EXIT:
-            sprintf(reply,"%d",BYE);
-            break;
-        default:
-            sprintf(reply,"%d",ERROR);
-            break;
     }
     return reply;
-}
+}*/
 
 /*
     Free all the memory used for the bank data
