@@ -1,17 +1,18 @@
-//
-// Created by Salomón Charabati on 27/11/19.
+// Created by Salomón Charabati
 // Game of Life - Program in C
+// Assignment #9
+// 27-11-2019
 
 #include <stdio.h>
 #include <stdlib.h>
 #include "pgm_image.h"
 #define MAX_STRING_SIZE 50
 
-void usage(char * program);
-void iterationsOfGameOfLife(pgm_t * pgm_image,int iterations,char * output_file_name);
+void usage(char *);
+void iterationsOfGameOfLife(pgm_t *pgm_image, int iterations, char *output_file_name, int number_of_threads);
 void changePGMImage(pgm_t * pgm_image, pgm_t * new_pgm_image);
-int countNeighbors(pgm_t *pgm_image, int i, int j);
-void strip_ext(char *fname);
+int countNeighbors(pgm_t *, int, int);
+void strip_ext(char *);
 
 int main(int argc, char * argv[])
 {
@@ -34,12 +35,12 @@ int main(int argc, char * argv[])
     strncpy(output_file_name,input_file_name, MAX_STRING_SIZE);
     strip_ext(output_file_name);
     // Call the iterations of Game Of Life to be applied and write the data in the image structure into a new PGM file
-    iterationsOfGameOfLife(&pgm_image,iterations,output_file_name);
+    iterationsOfGameOfLife(&pgm_image, iterations, output_file_name, 0);
 
     return 0;
 }
 
-void iterationsOfGameOfLife(pgm_t * pgm_image,int iterations,char * output_file_name)
+void iterationsOfGameOfLife(pgm_t *pgm_image, int iterations, char *output_file_name, int number_of_threads)
 {
     char file[MAX_STRING_SIZE];
 
@@ -168,17 +169,17 @@ int countNeighbors(pgm_t *pgm_image, int i, int j)
 }
 
 /*
-	Remove extension from filename
+	Remove extensions from filename
 	From: https://stackoverflow.com/questions/43163677/how-do-i-strip-a-file-extension-from-a-string-in-c/43163740
 */
-void strip_ext(char *fname)
+void strip_ext(char *file_name)
 {
-    char *end = fname + strlen(fname);
+    char *end = file_name + strlen(file_name);
 
-    while (end > fname && *end != '.' && *end != '\\' && *end != '/') {
+    while (end > file_name && *end != '.' && *end != '\\' && *end != '/') {
         --end;
     }
-    if ((end > fname && *end == '.') &&
+    if ((end > file_name && *end == '.') &&
         (*(end - 1) != '\\' && *(end - 1) != '/')) {
         *end = '\0';
     }

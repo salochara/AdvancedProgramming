@@ -8,8 +8,8 @@ OBJECTS = string_functions.o pgm_image.o
 # The header files
 DEPENDS = string_functions.h pgm_image.h
 # The executable program to be created
-#THREADS = game_of_life_threads
-#OMP = game_of_life_omp
+THREADS = game_of_life_threads
+OMP = game_of_life_omp
 NORMAL = game_of_life
 
 ### Variables for the compilation rules ###

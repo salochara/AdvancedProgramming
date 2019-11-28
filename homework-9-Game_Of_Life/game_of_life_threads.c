@@ -1,5 +1,8 @@
-// Created by Salomón Charabati on 27/11/19.
+// Created by Salomón Charabati
 // Game of Life (Threads version) - Program in C
+// Assignment #9
+// 27-11-2019
+
 
 #include <stdio.h>
 #include <stdlib.h>

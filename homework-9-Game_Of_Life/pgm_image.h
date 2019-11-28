@@ -18,11 +18,13 @@
 #include <string.h>
 #include <omp.h>
 #include "string_functions.h"
+#include "pgm_image.h"
 
 // Constant for the size of strings to be read from a PGM file header
 #define LINE_SIZE 255
 
 //// TYPE DECLARATIONS
+
 
 // Structure for a pixel color information, using a single grayscale value in the range 0-255
 typedef struct pixel_struct
@@ -45,6 +47,14 @@ typedef struct pgm_struct
     int max_value;                  // Maximum value for pixel data in each component
     image_t image;
 } pgm_t;
+
+// Structure to pass information to the threads
+typedef struct start_stop_struct {
+    pgm_t * pgm_image;
+    pgm_t * pgm_new_image;
+    unsigned int start;
+    unsigned int stop;
+} start_stop_t;
 
 //// FUNCTION PROTOTYPES
 void allocateImage(image_t * image);

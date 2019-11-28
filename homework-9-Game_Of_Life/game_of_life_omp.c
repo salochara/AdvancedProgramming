@@ -1,6 +1,7 @@
-//
-// Created by Salomón Charabati on 27/11/19.
+// Created by Salomón Charabati
 // Game of Life (OMP version) - Program in C
+// Assignment #9
+// 27-11-2019
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -8,8 +9,8 @@
 #define MAX_STRING_SIZE 50
 
 void usage(char *);
-void iterationsOfGameOfLife(pgm_t *,int,char *);
-void changePGMImage(pgm_t *, pgm_t *);
+void iterationsOfGameOfLife(pgm_t *pgm_image, int iterations, char *output_file_name, int number_of_threads);
+void changePGMImage(pgm_t * pgm_image, pgm_t * new_pgm_image);
 int countNeighbors(pgm_t *, int, int);
 void strip_ext(char *);
 
@@ -34,12 +35,12 @@ int main(int argc, char * argv[])
     strncpy(output_file_name,input_file_name, MAX_STRING_SIZE);
     strip_ext(output_file_name);
     // Call the iterations of Game Of Life to be applied and write the data in the image structure into a new PGM file
-    iterationsOfGameOfLife(&pgm_image,iterations,output_file_name);
+    iterationsOfGameOfLife(&pgm_image, iterations, output_file_name, 0);
 
     return 0;
 }
 
-void iterationsOfGameOfLife(pgm_t * pgm_image,int iterations,char * output_file_name)
+void iterationsOfGameOfLife(pgm_t *pgm_image, int iterations, char *output_file_name, int number_of_threads)
 {
     char file[MAX_STRING_SIZE];
 
@@ -58,7 +59,7 @@ void iterationsOfGameOfLife(pgm_t * pgm_image,int iterations,char * output_file_
     // other iteration
     for (int i = 0; i < iterations ; ++i)
     {
-        // Write the file name with 'NO' at the end. i.e. Normal, with no threads or OMP
+        // Write the file name with 'OMP' at the end. i.e. OMP.
         // Also include the number of iteration
         sprintf(file,"%s_OMP%d.pgm",output_file_name,i+1);
 
