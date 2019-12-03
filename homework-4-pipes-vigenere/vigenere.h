@@ -1,6 +1,7 @@
 //
 // Created by Salomón Charabati on 2019-10-06.
-//
+// Advanced Programming
+// Homework #4 Vigenere Cypher
 
 #ifndef ADVANCEDPROGRAMMING_VIGENERE_H
 #define ADVANCEDPROGRAMMING_VIGENERE_H

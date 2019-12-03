@@ -4,11 +4,12 @@
 ### Variables for this project ###
 # These should be the only ones that need to be modified
 # The files that must be compiled, with a .o extension
-OBJECTS = change_image.o string_functions.o pgm_image.o
+OBJECTS =
 # The header files
-DEPENDS = string_functions.h pgm_image.h
+#DEPENDS = string_functions.h pgm_image.h
 # The executable program to be created
-MAIN = change_image
+PROGRAMS = 00-firstExampleOMP 00-sum_numbers-sequential 02-sum_numbers-OMP \
+		   01-sum_numbers-threads
 
 ### Variables for the compilation rules ###
 # These should work for most projects, but can be modified when necessary
@@ -31,10 +32,10 @@ LDLIBS = -lm -fopenmp
 #   $<  = The first required file of the rule
 
 # Default rule
-all: $(MAIN)
+all: $(PROGRAMS)
 
 # Rule to make the executable
-$(MAIN): $(OBJECTS)
+$(PROGRAM): $(OBJECTS)
 	$(CC) $(CPPFLAGS) $^ -o $@ $(LDFLAGS) $(LDLIBS)
 
 # Rule to make the object files
@@ -43,7 +44,7 @@ $(MAIN): $(OBJECTS)
 
 # Clear the compiled files
 clean:
-	rm -rf *.o $(MAIN)
+	rm -rf *.o $(PROGRAMS)
 	
 # Indicate the rules that do not refer to a file
 .PHONY: clean all
